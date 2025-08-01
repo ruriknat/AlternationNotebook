@@ -558,7 +558,7 @@ namespace NativeRules
                                         recursosProgramados.Add(recursoIDProgramado);
 
                                         tabelaOrdensRecurso.Add((recursoIDProgramado, resultadoMinimo.OrderNo, resultadoMinimo.OrdersId, tempoFim)); // Substitua 'primeiraOrdem.Id' pelo campo correto que identifica a ordem
-                                        quantidadeRestanteRobo1Mesa1 = ListaOrdemSoldarRoboOrdenada.Count(r => r.OrderNo == resultadoMinimo.OrderNo && r.Programada == false);
+                                        quantidadeRestanteRobo1Mesa2 = ListaOrdemSoldarRoboOrdenada.Count(r => r.OrderNo == resultadoMinimo.OrderNo && r.Programada == false);
                                         tabelaOrdensRecurso.Remove(item); // Remove o item da tabela de ordens e recursos programados
 
                                         i = 0; // Reinicia o loop para verificar novamente as ordens 
@@ -621,7 +621,7 @@ namespace NativeRules
                                         recursosProgramados.Add(recursoIDProgramado);
 
                                         tabelaOrdensRecurso.Add((recursoIDProgramado, resultadoMinimo.OrderNo, resultadoMinimo.OrdersId, tempoFim)); // Substitua 'primeiraOrdem.Id' pelo campo correto que identifica a ordem
-                                        quantidadeRestanteRobo1Mesa1 = ListaOrdemSoldarRoboOrdenada.Count(r => r.OrderNo == resultadoMinimo.OrderNo && r.Programada == false);
+                                        quantidadeRestanteRobo2Mesa1 = ListaOrdemSoldarRoboOrdenada.Count(r => r.OrderNo == resultadoMinimo.OrderNo && r.Programada == false);
                                         tabelaOrdensRecurso.Remove(item); // Remove o item da tabela de ordens e recursos programados
 
                                         i = 0; // Reinicia o loop para verificar novamente as ordens 
@@ -683,7 +683,7 @@ namespace NativeRules
                                         recursosProgramados.Add(recursoIDProgramado);
 
                                         tabelaOrdensRecurso.Add((recursoIDProgramado, resultadoMinimo.OrderNo, resultadoMinimo.OrdersId, tempoFim)); // Substitua 'primeiraOrdem.Id' pelo campo correto que identifica a ordem
-                                        quantidadeRestanteRobo1Mesa1 = ListaOrdemSoldarRoboOrdenada.Count(r => r.OrderNo == resultadoMinimo.OrderNo && r.Programada == false);
+                                        quantidadeRestanteRobo2Mesa2 = ListaOrdemSoldarRoboOrdenada.Count(r => r.OrderNo == resultadoMinimo.OrderNo && r.Programada == false);
                                         tabelaOrdensRecurso.Remove(item); // Remove o item da tabela de ordens e recursos programados
 
                                         i = 0; // Reinicia o loop para verificar novamente as ordens 
@@ -746,7 +746,7 @@ namespace NativeRules
                                         recursosProgramados.Add(recursoIDProgramado);
 
                                         tabelaOrdensRecurso.Add((recursoIDProgramado, resultadoMinimo.OrderNo, resultadoMinimo.OrdersId, tempoFim)); // Substitua 'primeiraOrdem.Id' pelo campo correto que identifica a ordem
-                                        quantidadeRestanteRobo1Mesa1 = ListaOrdemSoldarRoboOrdenada.Count(r => r.OrderNo == resultadoMinimo.OrderNo && r.Programada == false);
+                                        quantidadeRestanteRobo3Mesa1 = ListaOrdemSoldarRoboOrdenada.Count(r => r.OrderNo == resultadoMinimo.OrderNo && r.Programada == false);
                                         tabelaOrdensRecurso.Remove(item); // Remove o item da tabela de ordens e recursos programados
 
                                         i = 0; // Reinicia o loop para verificar novamente as ordens 
@@ -808,7 +808,7 @@ namespace NativeRules
                                         recursosProgramados.Add(recursoIDProgramado);
 
                                         tabelaOrdensRecurso.Add((recursoIDProgramado, resultadoMinimo.OrderNo, resultadoMinimo.OrdersId, tempoFim)); // Substitua 'primeiraOrdem.Id' pelo campo correto que identifica a ordem
-                                        quantidadeRestanteRobo1Mesa1 = ListaOrdemSoldarRoboOrdenada.Count(r => r.OrderNo == resultadoMinimo.OrderNo && r.Programada == false);
+                                        quantidadeRestanteRobo3Mesa2 = ListaOrdemSoldarRoboOrdenada.Count(r => r.OrderNo == resultadoMinimo.OrderNo && r.Programada == false);
                                         tabelaOrdensRecurso.Remove(item); // Remove o item da tabela de ordens e recursos programados
 
                                         i = 0; // Reinicia o loop para verificar novamente as ordens 
@@ -871,7 +871,7 @@ namespace NativeRules
                                         recursosProgramados.Add(recursoIDProgramado);
 
                                         tabelaOrdensRecurso.Add((recursoIDProgramado, resultadoMinimo.OrderNo, resultadoMinimo.OrdersId, tempoFim)); // Substitua 'primeiraOrdem.Id' pelo campo correto que identifica a ordem
-                                        quantidadeRestanteRobo1Mesa1 = ListaOrdemSoldarRoboOrdenada.Count(r => r.OrderNo == resultadoMinimo.OrderNo && r.Programada == false);
+                                        quantidadeRestanteRobo4Mesa1 = ListaOrdemSoldarRoboOrdenada.Count(r => r.OrderNo == resultadoMinimo.OrderNo && r.Programada == false);
                                         tabelaOrdensRecurso.Remove(item); // Remove o item da tabela de ordens e recursos programados
 
                                         i = 0; // Reinicia o loop para verificar novamente as ordens 
@@ -933,7 +933,7 @@ namespace NativeRules
                                         recursosProgramados.Add(recursoIDProgramado);
 
                                         tabelaOrdensRecurso.Add((recursoIDProgramado, resultadoMinimo.OrderNo, resultadoMinimo.OrdersId, tempoFim)); // Substitua 'primeiraOrdem.Id' pelo campo correto que identifica a ordem
-                                        quantidadeRestanteRobo1Mesa1 = ListaOrdemSoldarRoboOrdenada.Count(r => r.OrderNo == resultadoMinimo.OrderNo && r.Programada == false);
+                                        quantidadeRestanteRobo4Mesa2 = ListaOrdemSoldarRoboOrdenada.Count(r => r.OrderNo == resultadoMinimo.OrderNo && r.Programada == false);
                                         tabelaOrdensRecurso.Remove(item); // Remove o item da tabela de ordens e recursos programados
 
                                         i = 0; // Reinicia o loop para verificar novamente as ordens 
