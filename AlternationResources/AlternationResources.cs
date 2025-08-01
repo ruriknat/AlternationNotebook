@@ -437,37 +437,65 @@ namespace NativeRules
                                 // Atualiza o dimc para o tempo de fim da operação
                                 dimc = tempoFim;
 
-                                if (quantidadeRestanteRobo1Mesa1 <= 1)
+                                int varTeste = 1;
+
+                                while (varTeste < 5)
                                 {
-                                    foreach (var ordem2 in ListaOrdemSoldarRoboOrdenada)
+                                    if (quantidadeRestanteRobo1Mesa1 <= 1)
                                     {
-                                        // Filtra as ordens que não estão programadas (Programada == false)
-                                        if (ordem2.Programada == false)  // Verifica se a ordem não está programada
+                                        int recursoIDProgramado = preactor.PlanningBoard.GetResourceNumber("ROBO 1 MESA 1");
+                                        
+                                        // Lista para armazenar os resultados dos testes
+                                        List<(int OrdersId, string OrderNo, DateTime changeStart)> listaResultadosTestes = new List<(int OrdersId, string OrderNo, DateTime changeStart)>();
+
+                                        foreach (var ordem2 in ListaOrdemSoldarRoboOrdenada)
                                         {
-                                            int recursoIDProgramado = preactor.PlanningBoard.GetResourceNumber("ROBO 1 MESA 1");
-
-                                            // Testa se a operação pode ser alocada no recurso
-                                            var resultadoTeste = preactor.PlanningBoard.TestOperationOnResource(ordem2.Record, recursoIDProgramado, dimc);
-
-                                            if (resultadoTeste.HasValue)
+                                            // Filtra as ordens que não estão programadas (Programada == false)
+                                            if (ordem2.Programada == false)  // Verifica se a ordem não está programada
                                             {
-                                                // Coloca a operação no recurso com base no teste
-                                                preactor.PlanningBoard.PutOperationOnResource(ordem2.Record, recursoIDProgramado, resultadoTeste.Value.ChangeStart);
-                                            
+                                                // Realiza o teste de operação para o recurso atual e a ordem
+                                                var resultadoTeste = preactor.PlanningBoard.TestOperationOnResource(ordem2.Record, recursoIDProgramado, dimc);
+
+                                                if (resultadoTeste.HasValue)
+                                                {
+                                                    // Armazena o recurso e o tempo de início do teste
+                                                    listaResultadosTestes.Add((ordem2.Record, ordem2.OrderNo, resultadoTeste.Value.ChangeStart));
+                                                }
+                                            }
+                                        }
+                                        
+                                        // Verifica se obteve algum resultado e faz o "PutOp" com o menor tempo de início
+                                        if (listaResultadosTestes.Count > 0)
+                                        {
+                                            // Ordena os resultados pelo tempo de início (ChangeStart)
+                                            var resultadoMinimo = listaResultadosTestes.OrderBy(r => r.changeStart).First();
+
+                                            // Realiza o "PutOperation" com o menor tempo de início (ChangeStart)
+                                            preactor.PlanningBoard.PutOperationOnResource(resultadoMinimo.OrdersId, recursoIDProgramado, resultadoMinimo.changeStart);
 
                                             // Define o tempo de fim da operação
-                                            tempoFim = preactor.ReadFieldDateTime("Orders", "End Time", ordem2.Record);
+                                            tempoFim = preactor.ReadFieldDateTime("Orders", "End Time", resultadoMinimo.OrdersId);
 
                                             // Adiciona ao sequenciamento
-                                            sequenciamentoOperacoes.Add((ordem2.Record, ordem2.OrderNo, recursoIDProgramado, dimc, tempoFim));
+                                            sequenciamentoOperacoes.Add((resultadoMinimo.OrdersId, resultadoMinimo.OrderNo, recursoIDProgramado, dimc, tempoFim));
 
                                             // Atualiza o dimc para o tempo de fim da operação
                                             dimc = tempoFim;
 
-                                            i= 0; // Reinicia o loop para verificar novamente as ordens 
-                                            }
+                                            // Adiciona o recurso à lista de recursos programados
+                                            recursosProgramados.Add(recursoIDProgramado);
+
+                                            tabelaOrdensRecurso.Add((recursoIDProgramado, resultadoMinimo.OrderNo, resultadoMinimo.OrdersId, tempoFim)); // Substitua 'primeiraOrdem.Id' pelo campo correto que identifica a ordem
+                                            quantidadeRestanteRobo1Mesa1 = ListaOrdemSoldarRoboOrdenada.Count(r => r.OrderNo == resultadoMinimo.OrderNo && r.Programada == false);
+                                            tabelaOrdensRecurso.Remove(item); // Remove o item da tabela de ordens e recursos programados
+
+                                            i = 0; // Reinicia o loop para verificar novamente as ordens 
+                                                
+
+                                            
                                         }
                                     }
+                                    varTeste++;
                                 }
 
                             }
