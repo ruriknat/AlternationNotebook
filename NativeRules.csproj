@@ -76,6 +76,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AlternationResources\AlternationResources - Cópia %2810%29.cs" />
+    <Compile Include="AlternationResources\AlternationResources - Cópia %2811%29.cs" />
+    <Compile Include="AlternationResources\AlternationResources - Cópia %2812%29.cs" />
+    <Compile Include="AlternationResources\AlternationResources - Cópia %2813%29.cs" />
     <Compile Include="AlternationResources\AlternationResources - Cópia %282%29.cs" />
     <Compile Include="AlternationResources\AlternationResources - Cópia %283%29.cs" />
     <Compile Include="AlternationResources\AlternationResources - Cópia %284%29.cs" />
