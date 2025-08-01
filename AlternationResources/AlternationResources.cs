@@ -469,7 +469,230 @@ namespace NativeRules
                                         }
                                     }
                                 }
+                                else if (quantidadeRestanteRobo1Mesa2 <= 1)
+                                {
+                                    foreach (var ordem2 in ListaOrdemSoldarRoboOrdenada)
+                                    {
+                                        // Filtra as ordens que não estão programadas (Programada == false)
+                                        if (ordem2.Programada == false)  // Verifica se a ordem não está programada
+                                        {
+                                            int recursoIDProgramado = preactor.PlanningBoard.GetResourceNumber("ROBO 1 MESA 2");
 
+                                            // Testa se a operação pode ser alocada no recurso
+                                            var resultadoTeste = preactor.PlanningBoard.TestOperationOnResource(ordem2.Record, recursoIDProgramado, dimc);
+
+                                            if (resultadoTeste.HasValue)
+                                            {
+                                                // Coloca a operação no recurso com base no teste
+                                                preactor.PlanningBoard.PutOperationOnResource(ordem2.Record, recursoIDProgramado, resultadoTeste.Value.ChangeStart);
+
+
+                                                // Define o tempo de fim da operação
+                                                tempoFim = preactor.ReadFieldDateTime("Orders", "End Time", ordem2.Record);
+
+                                                // Adiciona ao sequenciamento
+                                                sequenciamentoOperacoes.Add((ordem2.Record, ordem2.OrderNo, recursoIDProgramado, dimc, tempoFim));
+
+                                                // Atualiza o dimc para o tempo de fim da operação
+                                                dimc = tempoFim;
+
+                                                i = 0; // Reinicia o loop para verificar novamente as ordens 
+                                            }
+                                        }
+                                    }
+                                }
+                                else if (quantidadeRestanteRobo2Mesa1 <= 1)
+                                {
+                                    foreach (var ordem2 in ListaOrdemSoldarRoboOrdenada)
+                                    {
+                                        // Filtra as ordens que não estão programadas (Programada == false)
+                                        if (ordem2.Programada == false)  // Verifica se a ordem não está programada
+                                        {
+                                            int recursoIDProgramado = preactor.PlanningBoard.GetResourceNumber("ROBO 2 MESA 1");
+
+                                            // Testa se a operação pode ser alocada no recurso
+                                            var resultadoTeste = preactor.PlanningBoard.TestOperationOnResource(ordem2.Record, recursoIDProgramado, dimc);
+
+                                            if (resultadoTeste.HasValue)
+                                            {
+                                                // Coloca a operação no recurso com base no teste
+                                                preactor.PlanningBoard.PutOperationOnResource(ordem2.Record, recursoIDProgramado, resultadoTeste.Value.ChangeStart);
+
+
+                                                // Define o tempo de fim da operação
+                                                tempoFim = preactor.ReadFieldDateTime("Orders", "End Time", ordem2.Record);
+
+                                                // Adiciona ao sequenciamento
+                                                sequenciamentoOperacoes.Add((ordem2.Record, ordem2.OrderNo, recursoIDProgramado, dimc, tempoFim));
+
+                                                // Atualiza o dimc para o tempo de fim da operação
+                                                dimc = tempoFim;
+
+                                                i = 0; // Reinicia o loop para verificar novamente as ordens 
+                                            }
+                                        }
+                                    }
+                                }
+                                else if (quantidadeRestanteRobo2Mesa2 <= 1)
+                                {
+                                    foreach (var ordem2 in ListaOrdemSoldarRoboOrdenada)
+                                    {
+                                        // Filtra as ordens que não estão programadas (Programada == false)
+                                        if (ordem2.Programada == false)  // Verifica se a ordem não está programada
+                                        {
+                                            int recursoIDProgramado = preactor.PlanningBoard.GetResourceNumber("ROBO 2 MESA 2");
+
+                                            // Testa se a operação pode ser alocada no recurso
+                                            var resultadoTeste = preactor.PlanningBoard.TestOperationOnResource(ordem2.Record, recursoIDProgramado, dimc);
+
+                                            if (resultadoTeste.HasValue)
+                                            {
+                                                // Coloca a operação no recurso com base no teste
+                                                preactor.PlanningBoard.PutOperationOnResource(ordem2.Record, recursoIDProgramado, resultadoTeste.Value.ChangeStart);
+
+
+                                                // Define o tempo de fim da operação
+                                                tempoFim = preactor.ReadFieldDateTime("Orders", "End Time", ordem2.Record);
+
+                                                // Adiciona ao sequenciamento
+                                                sequenciamentoOperacoes.Add((ordem2.Record, ordem2.OrderNo, recursoIDProgramado, dimc, tempoFim));
+
+                                                // Atualiza o dimc para o tempo de fim da operação
+                                                dimc = tempoFim;
+
+                                                i = 0; // Reinicia o loop para verificar novamente as ordens 
+                                            }
+                                        }
+                                    }
+                                }
+                                else if (quantidadeRestanteRobo3Mesa1 <= 1)
+                                {
+                                    foreach (var ordem2 in ListaOrdemSoldarRoboOrdenada)
+                                    {
+                                        // Filtra as ordens que não estão programadas (Programada == false)
+                                        if (ordem2.Programada == false)  // Verifica se a ordem não está programada
+                                        {
+                                            int recursoIDProgramado = preactor.PlanningBoard.GetResourceNumber("ROBO 3 MESA 1");
+
+                                            // Testa se a operação pode ser alocada no recurso
+                                            var resultadoTeste = preactor.PlanningBoard.TestOperationOnResource(ordem2.Record, recursoIDProgramado, dimc);
+
+                                            if (resultadoTeste.HasValue)
+                                            {
+                                                // Coloca a operação no recurso com base no teste
+                                                preactor.PlanningBoard.PutOperationOnResource(ordem2.Record, recursoIDProgramado, resultadoTeste.Value.ChangeStart);
+
+
+                                                // Define o tempo de fim da operação
+                                                tempoFim = preactor.ReadFieldDateTime("Orders", "End Time", ordem2.Record);
+
+                                                // Adiciona ao sequenciamento
+                                                sequenciamentoOperacoes.Add((ordem2.Record, ordem2.OrderNo, recursoIDProgramado, dimc, tempoFim));
+
+                                                // Atualiza o dimc para o tempo de fim da operação
+                                                dimc = tempoFim;
+
+                                                i = 0; // Reinicia o loop para verificar novamente as ordens 
+                                            }
+                                        }
+                                    }
+                                }
+                                else if (quantidadeRestanteRobo3Mesa2 <= 1)
+                                {
+                                    foreach (var ordem2 in ListaOrdemSoldarRoboOrdenada)
+                                    {
+                                        // Filtra as ordens que não estão programadas (Programada == false)
+                                        if (ordem2.Programada == false)  // Verifica se a ordem não está programada
+                                        {
+                                            int recursoIDProgramado = preactor.PlanningBoard.GetResourceNumber("ROBO 3 MESA 2");
+
+                                            // Testa se a operação pode ser alocada no recurso
+                                            var resultadoTeste = preactor.PlanningBoard.TestOperationOnResource(ordem2.Record, recursoIDProgramado, dimc);
+
+                                            if (resultadoTeste.HasValue)
+                                            {
+                                                // Coloca a operação no recurso com base no teste
+                                                preactor.PlanningBoard.PutOperationOnResource(ordem2.Record, recursoIDProgramado, resultadoTeste.Value.ChangeStart);
+
+
+                                                // Define o tempo de fim da operação
+                                                tempoFim = preactor.ReadFieldDateTime("Orders", "End Time", ordem2.Record);
+
+                                                // Adiciona ao sequenciamento
+                                                sequenciamentoOperacoes.Add((ordem2.Record, ordem2.OrderNo, recursoIDProgramado, dimc, tempoFim));
+
+                                                // Atualiza o dimc para o tempo de fim da operação
+                                                dimc = tempoFim;
+
+                                                i = 0; // Reinicia o loop para verificar novamente as ordens 
+                                            }
+                                        }
+                                    }
+                                }
+                                else if (quantidadeRestanteRobo4Mesa1 <= 1)
+                                {
+                                    foreach (var ordem2 in ListaOrdemSoldarRoboOrdenada)
+                                    {
+                                        // Filtra as ordens que não estão programadas (Programada == false)
+                                        if (ordem2.Programada == false)  // Verifica se a ordem não está programada
+                                        {
+                                            int recursoIDProgramado = preactor.PlanningBoard.GetResourceNumber("ROBO 4 MESA 1");
+
+                                            // Testa se a operação pode ser alocada no recurso
+                                            var resultadoTeste = preactor.PlanningBoard.TestOperationOnResource(ordem2.Record, recursoIDProgramado, dimc);
+
+                                            if (resultadoTeste.HasValue)
+                                            {
+                                                // Coloca a operação no recurso com base no teste
+                                                preactor.PlanningBoard.PutOperationOnResource(ordem2.Record, recursoIDProgramado, resultadoTeste.Value.ChangeStart);
+
+
+                                                // Define o tempo de fim da operação
+                                                tempoFim = preactor.ReadFieldDateTime("Orders", "End Time", ordem2.Record);
+
+                                                // Adiciona ao sequenciamento
+                                                sequenciamentoOperacoes.Add((ordem2.Record, ordem2.OrderNo, recursoIDProgramado, dimc, tempoFim));
+
+                                                // Atualiza o dimc para o tempo de fim da operação
+                                                dimc = tempoFim;
+
+                                                i = 0; // Reinicia o loop para verificar novamente as ordens 
+                                            }
+                                        }
+                                    }
+                                }
+                                else if (quantidadeRestanteRobo4Mesa2 <= 1)
+                                {
+                                    foreach (var ordem2 in ListaOrdemSoldarRoboOrdenada)
+                                    {
+                                        // Filtra as ordens que não estão programadas (Programada == false)
+                                        if (ordem2.Programada == false)  // Verifica se a ordem não está programada
+                                        {
+                                            int recursoIDProgramado = preactor.PlanningBoard.GetResourceNumber("ROBO 4 MESA 2");
+
+                                            // Testa se a operação pode ser alocada no recurso
+                                            var resultadoTeste = preactor.PlanningBoard.TestOperationOnResource(ordem2.Record, recursoIDProgramado, dimc);
+
+                                            if (resultadoTeste.HasValue)
+                                            {
+                                                // Coloca a operação no recurso com base no teste
+                                                preactor.PlanningBoard.PutOperationOnResource(ordem2.Record, recursoIDProgramado, resultadoTeste.Value.ChangeStart);
+
+
+                                                // Define o tempo de fim da operação
+                                                tempoFim = preactor.ReadFieldDateTime("Orders", "End Time", ordem2.Record);
+
+                                                // Adiciona ao sequenciamento
+                                                sequenciamentoOperacoes.Add((ordem2.Record, ordem2.OrderNo, recursoIDProgramado, dimc, tempoFim));
+
+                                                // Atualiza o dimc para o tempo de fim da operação
+                                                dimc = tempoFim;
+
+                                                i = 0; // Reinicia o loop para verificar novamente as ordens 
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
