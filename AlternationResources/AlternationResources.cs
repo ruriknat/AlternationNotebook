@@ -37,42 +37,30 @@ namespace NativeRules
             // -- // nk // 2.5 - Consolidar/Agrupar operações SOLDAR ROBO de uma mesma ordem
             // nk // 3 - Sequenciar as operações posteriores a solda robo
 
-            // Abre as listas de Ordens e Recursos
             IList<Orders> listaOrders = new List<Orders>();
             IList<Resources> listaRecursos = new List<Resources>();
 
             GetOrders(preactor, listaOrders);
-
             GetResources(preactor, listaRecursos);
 
-            // Sequencia todas as operações para frente
             preactor.PlanningBoard.SequenceAll(SequenceAllDirection.Forwards, SequencePriority.DueDate);
 
-            // Filtrando as operacoes de "SOLDAR ROBO" e ordenando por SetupStart
             var listaOrdemSoldarRobo = listaOrders
                 .Where(s => s.OperationName == "SOLDAR ROBO")
                 .ToList();
 
-            // Iterar sobre as operacoes de "SOLDAR ROBO"
             foreach (var registoOrdem in listaOrdemSoldarRobo)
             {
-                // busca a operacao anterior para que seja desprograma todas as operacoes subsequentes
                 int previousRecord = preactor.PlanningBoard.GetPreviousOperation(registoOrdem.Record, 1);
 
-                // Verificacao se existe uma operacao subsequente (se (PreviusRecord < 0 nao existe operacao antecessora)
                 if (previousRecord > 0)
                 {
-                    // Desprograma as operações subsequentes
                     preactor.PlanningBoard.UnallocateOperation(previousRecord, OperationSelection.SubsequentOperations);
-                    // Desprograma a operação de SOLDAR ROBO
                     preactor.PlanningBoard.UnallocateOperation(registoOrdem.Record, OperationSelection.ThisOperation);
                 }
                 else
                 {
-                    // Se não houver operação anterior, desprogramar a operação atual
                     preactor.PlanningBoard.UnallocateOperation(registoOrdem.Record, OperationSelection.BiDirectionalOperations);
-
-                    // Desprograma a operação de SOLDAR ROBO
                     preactor.PlanningBoard.UnallocateOperation(registoOrdem.Record, OperationSelection.ThisOperation);
                 }
             }
@@ -87,20 +75,12 @@ namespace NativeRules
         {
             IPreactor preactor = PreactorFactory.CreatePreactorObject(preactorComObject);
 
-            // Lista em que sera salvo os dados das ordens/operações
             IList<Orders> listaOrders = new List<Orders>();
-
-            GetOrders(preactor, listaOrders);
-
-
-            // == Dados Recursos ==
-
-            // Lista em que será salvo os dados dos recursos
             IList<Resources> listaRecursos = new List<Resources>();
 
+            GetOrders(preactor, listaOrders);
             GetResources(preactor, listaRecursos);
 
-            // Filtrando as operacoes de "SOLDAR ROBO" e ordenando por SetupStart
             var listaOrdemSoldarRobo = listaOrders
                 .Where(s => s.OperationName == "SOLDAR ROBO")
                 .OrderBy(x => x.DueDate)
@@ -108,9 +88,6 @@ namespace NativeRules
 
             // --------------------------------------------- Até aqui excluir daqui
 
-
-
-            // Cria uma lista com os dados filtrando os recursos de solda robo
             var listaRecursoRoboSolda = listaRecursos
                 .Where(r => r.ResourceName != null &&
                             r.ResourceName.IndexOf("ROBO", StringComparison.OrdinalIgnoreCase) >= 0 &&
@@ -118,34 +95,22 @@ namespace NativeRules
                 .OrderBy(r => r.ResourceName)
                 .ToList();
 
-            // Cria uma lista com os agrupamentos de recursos de solda robo
             var listaGrupoRecursoRoboSolda = listaRecursoRoboSolda
                 .GroupBy(r => r.Attribute4)
                 .Select(s => new { Attribute4 = s.Key })
                 .ToList();
 
-
-            // == Dados Recursos ==
-
-            // == Inicio Dados Ordens Soldar Robo ==
-
-
-            // Agrupa as ordens pelo campo OrderNo
             var listaOrdensAgrupadasPorOrderNo = listaOrdemSoldarRobo
                 .GroupBy(o => o.OrderNo)
                 .ToList();
 
-            // Cria um valor de ordenação alternado dentro de cada grupo de ordens
             int valorOrdenacaoCounter = 0;
             foreach (var grupo in listaOrdensAgrupadasPorOrderNo)
             {
-                // Ordena as ordens dentro do grupo por DueDate
                 var listaOrdensDoGrupoOrdenadas = grupo.OrderBy(o => o.DueDate).ToList();
 
-                // Atribui um valor alternado de ordenação para as ordens dentro do grupo
                 foreach (var ordem in listaOrdensDoGrupoOrdenadas)
                 {
-                    // Atualiza o valor de ordenação na lista original para todos os registros com o mesmo OrderNo
                     var ordensParaAtualizar = listaOrdemSoldarRobo
                         .Where(o => o.OrderNo == ordem.OrderNo)
                         .ToList();
@@ -158,15 +123,12 @@ namespace NativeRules
                 }
             }
 
-            // Ordena a lista final com base no novo valor de ordenação
             var ListaOrdemSoldarRoboOrdenada = listaOrdemSoldarRobo
-                .OrderBy(x => x.OrdenacaoPeca)  // Depois ordena por OrdenacaoPeca
-                .ThenBy(x => x.ValorOrdenacao) // Ordena pelo valor sequêncial das ordens
-                .ThenBy(x => x.DueDate)       // Por fim, ordena por DueDate
+                .OrderBy(x => x.OrdenacaoPeca)
+                .ThenBy(x => x.ValorOrdenacao)
+                .ThenBy(x => x.DueDate)
                 .ToList();
 
-
-            // == Fim Dados Ordens Soldar Robo ==
 
 
             // ============================================================================================================
@@ -196,41 +158,29 @@ namespace NativeRules
             int quantidadeRestanteRobo4Mesa1 = 10;
             int quantidadeRestanteRobo4Mesa2 = 10;
 
-            // Lista para armazenar os recursos que já foram programados
             List<int> recursosProgramados = new List<int>();
-
-            // Tabela para armazenar os recursos e as ordens alocadas
             List<(int recursoId, string OrderNo, int ordemId, DateTime changeStart)> tabelaOrdensRecurso = new List<(int, string, int, DateTime)>();
 
             while (recursosProgramados.Count < listaRecursoRoboSolda.Count)
             {
-                // Seleciona a primeira ordem
                 var primeiraOrdem = queueOrdens.Dequeue();
 
-
-                // Lista para armazenar os resultados dos testes
                 List<(int recursoId, string Attribute4, DateTime changeStart)> listaResultadosTestes = new List<(int recursoId, string Attribute4, DateTime changeStart)>();
 
-                // Itera sobre os recursos disponíveis (excluindo os já programados)
                 foreach (var recurso in listaRecursoRoboSolda.Where(r => !recursosProgramados.Contains(r.ResourceId)))
                 {
-                    // Realiza o teste de operação para o recurso atual e a ordem
                     var resultadoTeste = preactor.PlanningBoard.TestOperationOnResource(primeiraOrdem.Record, recurso.ResourceId, dimc);
 
                     if (resultadoTeste.HasValue)
                     {
-                        // Armazena o recurso e o tempo de início do teste
                         listaResultadosTestes.Add((recurso.ResourceId, recurso.Attribute4, resultadoTeste.Value.ChangeStart));
                     }
                 }
 
-                // Verifica se obteve algum resultado e faz o "PutOp" com o menor tempo de início
                 if (listaResultadosTestes.Count > 0)
                 {
-                    // Ordena os resultados pelo tempo de início (ChangeStart)
                     var resultadoMinimo = listaResultadosTestes.OrderBy(r => r.changeStart).First();
 
-                    // Verifica as condições para o PutOp
                     if (primeiraOrdem.RecursoRequerido == -1)
                     {
                         if (resultadoMinimo.Attribute4 == "ROBO 1" && robo1 == true)
@@ -249,13 +199,10 @@ namespace NativeRules
                         {
                             resultadoMinimo.changeStart = tempoRobo4;
                         }
-                        // Realiza o "PutOperation" com o menor tempo de início (ChangeStart)
                         preactor.PlanningBoard.PutOperationOnResource(primeiraOrdem.Record, resultadoMinimo.recursoId, resultadoMinimo.changeStart);
 
-                        // Marca a ordem como programada
                         primeiraOrdem.Programada = true;
 
-                        // Atualiza o valor de ordenação na lista original para todos os registros com o mesmo OrderNo
                         var ordensParaAtualizar = ListaOrdemSoldarRoboOrdenada
                             .Where(o => o.Record == primeiraOrdem.Record)
                             .ToList();
@@ -266,11 +213,9 @@ namespace NativeRules
                             }
                             valorOrdenacaoCounter++;
                         
-                        // Adiciona o recurso à lista de recursos programados
                         recursosProgramados.Add(resultadoMinimo.recursoId);
 
-                        // Registra a ordem e o recurso na tabela
-                        tabelaOrdensRecurso.Add((resultadoMinimo.recursoId, primeiraOrdem.OrderNo, primeiraOrdem.Record, resultadoMinimo.changeStart)); // Substitua 'primeiraOrdem.Id' pelo campo correto que identifica a ordem
+                        tabelaOrdensRecurso.Add((resultadoMinimo.recursoId, primeiraOrdem.OrderNo, primeiraOrdem.Record, resultadoMinimo.changeStart));
 
                         if (resultadoMinimo.Attribute4 == "ROBO 1" && robo1 == false)
                         {
@@ -309,17 +254,14 @@ namespace NativeRules
 
 
 
-            // Lista para armazenar as operações sequenciadas
             List<(int ordemId, string OrderNo, int recursoId, DateTime startTime, DateTime endTime)> sequenciamentoOperacoes = new List<(int, string, int, DateTime, DateTime)>();
 
             for (int i = 0; i < ListaOrdemSoldarRoboOrdenada.Count; i++)
             {
                 foreach (var ordem in ListaOrdemSoldarRoboOrdenada)
                     {
-                    // Filtra as ordens que não estão programadas (Programada == false)
                     if (ordem.Programada == false)  // Verifica se a ordem não está programada
                     {
-                        // Filtra as ordens que já estão programadas
                         var ordensComRecursoAlocado = tabelaOrdensRecurso.Where(t => t.OrderNo == ordem.OrderNo).OrderBy(t => t.OrderNo).ThenBy(t => t.changeStart).ToList();
 
                         foreach (var item in ordensComRecursoAlocado)
@@ -357,15 +299,10 @@ namespace NativeRules
                                 quantidadeRestanteRobo4Mesa2 = ListaOrdemSoldarRoboOrdenada.Count(r => r.OrderNo == ordem.OrderNo && r.Programada == false);
                             }
 
-
-                            // Verifica se é a primeira operação ou não
-                            if (ordem.OrdenacaoPeca == 1)  // Se a ordem for a primeira, pega o tempo de início do recurso alocado
+                            if (ordem.OrdenacaoPeca == 1) 
                             {
-                                // Define o tempo de início e fim para a primeira operação
                                 DateTime tempoInicio = item.changeStart;
                                 DateTime tempoFim = preactor.ReadFieldDateTime("Orders", "End Time", ordem.Record);
-
-                                // Adiciona ao sequenciamento
                                 sequenciamentoOperacoes.Add((ordem.Record, ordem.OrderNo, item.recursoId, tempoInicio, tempoFim));
                             }
                             else
@@ -378,29 +315,22 @@ namespace NativeRules
 
                                 DateTime ultimoEndTimeProgramado = ordem.EndTime;
 
-                                // Verificando se há recursos encontrados
-                                if (resourcesFound.Count >= 2)  // Verificando se existem pelo menos 2 recursos para comparação
+                                if (resourcesFound.Count >= 2)
                                 {
-                                    // Fazendo chamadas para obter os resultados com a data ajustada para 120 dias
                                     var result1 = preactor.PlanningBoard.GetResourcesPreviousOperation(resourcesFound[0].ResourceId, DateTime.MaxValue);
                                     var result2 = preactor.PlanningBoard.GetResourcesPreviousOperation(resourcesFound[1].ResourceId, DateTime.MaxValue);
 
-                                    // Obtendo os tempos de término
                                     DateTime endtime1 = preactor.ReadFieldDateTime("Orders", "End Time", result1);
                                     DateTime endtime2 = preactor.ReadFieldDateTime("Orders", "End Time", result2);
 
-                                    // Comparando as datas para encontrar a mais recente
                                     ultimoEndTimeProgramado = endtime1 > endtime2 ? endtime1 : endtime2;
                                 }
                                 else if (resourcesFound.Count == 1)
                                 {
-                                    // Fazendo chamadas para obter os resultados com a data ajustada para 120 dias
                                     var result1 = preactor.PlanningBoard.GetResourcesPreviousOperation(resourcesFound[0].ResourceId, DateTime.Today.AddDays(120));
 
-                                    // Obtendo os tempos de término
                                     DateTime endtime1 = preactor.ReadFieldDateTime("Orders", "End Time", result1);
 
-                                    // Comparando as datas para encontrar a mais recente
                                     ultimoEndTimeProgramado = endtime1;
                                 }
 
@@ -408,16 +338,12 @@ namespace NativeRules
 
                                 int ultimoOrderIdProrgamado = preactor.PlanningBoard.GetResourcesPreviousOperation(item.recursoId, item.changeStart.AddDays(15));
 
-                                // Para ordens subsequentes, usa o dimc do ciclo anterior
                                 DateTime tempoInicio = dimc;
 
-                                // Aloca a operação no recurso com base no dimc
                                 preactor.PlanningBoard.PutOperationOnResource(ordem.Record, item.recursoId, dimc);
 
-                                // Marca a ordem como programada
                                 ordem.Programada = true;
 
-                                // Atualiza o valor de ordenação na lista original para todos os registros com o mesmo OrderNo
                                 var ordensParaAtualizar = ListaOrdemSoldarRoboOrdenada
                                     .Where(o => o.Record == ordem.Record)
                                     .ToList();
@@ -428,76 +354,363 @@ namespace NativeRules
                                 }
                                 valorOrdenacaoCounter++;
 
-                                // Define o tempo de fim da operação
                                 DateTime tempoFim = preactor.ReadFieldDateTime("Orders", "End Time", ordem.Record);
 
-                                // Adiciona ao sequenciamento
                                 sequenciamentoOperacoes.Add((ordem.Record, ordem.OrderNo, item.recursoId, tempoInicio, tempoFim));
 
-                                // Atualiza o dimc para o tempo de fim da operação
                                 dimc = tempoFim;
 
-                                int varTeste = 1;
 
-                                while (varTeste < 5)
+                                // ============================================================================================================
+                                // Parte três, continuar o sequenciamento das operações SOLDAR ROBO com as demais ordne ao acabar uma ordem
+                                // ============================================================================================================
+
+
+                                if (quantidadeRestanteRobo1Mesa1 <= 1)
                                 {
-                                    if (quantidadeRestanteRobo1Mesa1 <= 1)
-                                    {
-                                        int recursoIDProgramado = preactor.PlanningBoard.GetResourceNumber("ROBO 1 MESA 1");
+                                    int recursoIDProgramado = preactor.PlanningBoard.GetResourceNumber("ROBO 1 MESA 1");
                                         
-                                        // Lista para armazenar os resultados dos testes
-                                        List<(int OrdersId, string OrderNo, DateTime changeStart)> listaResultadosTestes = new List<(int OrdersId, string OrderNo, DateTime changeStart)>();
+                                    List<(int OrdersId, string OrderNo, DateTime changeStart)> listaResultadosTestes = new List<(int OrdersId, string OrderNo, DateTime changeStart)>();
 
-                                        foreach (var ordem2 in ListaOrdemSoldarRoboOrdenada)
+                                    foreach (var ordem2 in ListaOrdemSoldarRoboOrdenada)
+                                    {
+                                        if (ordem2.Programada == false) 
                                         {
-                                            // Filtra as ordens que não estão programadas (Programada == false)
-                                            if (ordem2.Programada == false)  // Verifica se a ordem não está programada
-                                            {
-                                                // Realiza o teste de operação para o recurso atual e a ordem
-                                                var resultadoTeste = preactor.PlanningBoard.TestOperationOnResource(ordem2.Record, recursoIDProgramado, dimc);
+                                            var resultadoTeste = preactor.PlanningBoard.TestOperationOnResource(ordem2.Record, recursoIDProgramado, dimc);
 
-                                                if (resultadoTeste.HasValue)
-                                                {
-                                                    // Armazena o recurso e o tempo de início do teste
-                                                    listaResultadosTestes.Add((ordem2.Record, ordem2.OrderNo, resultadoTeste.Value.ChangeStart));
-                                                }
+                                            if (resultadoTeste.HasValue)
+                                            {
+                                                listaResultadosTestes.Add((ordem2.Record, ordem2.OrderNo, resultadoTeste.Value.ChangeStart));
                                             }
                                         }
-                                        
-                                        // Verifica se obteve algum resultado e faz o "PutOp" com o menor tempo de início
-                                        if (listaResultadosTestes.Count > 0)
-                                        {
-                                            // Ordena os resultados pelo tempo de início (ChangeStart)
-                                            var resultadoMinimo = listaResultadosTestes.OrderBy(r => r.changeStart).First();
-
-                                            // Realiza o "PutOperation" com o menor tempo de início (ChangeStart)
-                                            preactor.PlanningBoard.PutOperationOnResource(resultadoMinimo.OrdersId, recursoIDProgramado, resultadoMinimo.changeStart);
-
-                                            // Define o tempo de fim da operação
-                                            tempoFim = preactor.ReadFieldDateTime("Orders", "End Time", resultadoMinimo.OrdersId);
-
-                                            // Adiciona ao sequenciamento
-                                            sequenciamentoOperacoes.Add((resultadoMinimo.OrdersId, resultadoMinimo.OrderNo, recursoIDProgramado, dimc, tempoFim));
-
-                                            // Atualiza o dimc para o tempo de fim da operação
-                                            dimc = tempoFim;
-
-                                            // Adiciona o recurso à lista de recursos programados
-                                            recursosProgramados.Add(recursoIDProgramado);
-
-                                            tabelaOrdensRecurso.Add((recursoIDProgramado, resultadoMinimo.OrderNo, resultadoMinimo.OrdersId, tempoFim)); // Substitua 'primeiraOrdem.Id' pelo campo correto que identifica a ordem
-                                            quantidadeRestanteRobo1Mesa1 = ListaOrdemSoldarRoboOrdenada.Count(r => r.OrderNo == resultadoMinimo.OrderNo && r.Programada == false);
-                                            tabelaOrdensRecurso.Remove(item); // Remove o item da tabela de ordens e recursos programados
-
-                                            i = 0; // Reinicia o loop para verificar novamente as ordens 
-                                                
-
-                                            
-                                        }
                                     }
-                                    varTeste++;
+                                        
+                                    if (listaResultadosTestes.Count > 0)
+                                    {
+                                        var resultadoMinimo = listaResultadosTestes.OrderBy(r => r.changeStart).First();
+
+                                        preactor.PlanningBoard.PutOperationOnResource(resultadoMinimo.OrdersId, recursoIDProgramado, resultadoMinimo.changeStart);
+
+                                        tempoFim = preactor.ReadFieldDateTime("Orders", "End Time", resultadoMinimo.OrdersId);
+
+                                        sequenciamentoOperacoes.Add((resultadoMinimo.OrdersId, resultadoMinimo.OrderNo, recursoIDProgramado, dimc, tempoFim));
+
+                                        dimc = tempoFim;
+
+                                        recursosProgramados.Add(recursoIDProgramado);
+
+                                        tabelaOrdensRecurso.Add((recursoIDProgramado, resultadoMinimo.OrderNo, resultadoMinimo.OrdersId, tempoFim));
+                                        quantidadeRestanteRobo1Mesa1 = ListaOrdemSoldarRoboOrdenada.Count(r => r.OrderNo == resultadoMinimo.OrderNo && r.Programada == false);
+                                        tabelaOrdensRecurso.Remove(item);
+
+                                        i = 0;
+                                             
+                                    }
                                 }
 
+
+                                else if (quantidadeRestanteRobo1Mesa2 <= 1)
+                                {
+                                    int recursoIDProgramado = preactor.PlanningBoard.GetResourceNumber("ROBO 1 MESA 2");
+
+                                    List<(int OrdersId, string OrderNo, DateTime changeStart)> listaResultadosTestes = new List<(int OrdersId, string OrderNo, DateTime changeStart)>();
+
+                                    foreach (var ordem2 in ListaOrdemSoldarRoboOrdenada)
+                                    {
+                                        if (ordem2.Programada == false)  // Verifica se a ordem não está programada
+                                        {
+                                            var resultadoTeste = preactor.PlanningBoard.TestOperationOnResource(ordem2.Record, recursoIDProgramado, dimc);
+
+                                            if (resultadoTeste.HasValue)
+                                            {
+                                                listaResultadosTestes.Add((ordem2.Record, ordem2.OrderNo, resultadoTeste.Value.ChangeStart));
+                                            }
+                                        }
+                                    }
+
+                                    if (listaResultadosTestes.Count > 0)
+                                    {
+                                        var resultadoMinimo = listaResultadosTestes.OrderBy(r => r.changeStart).First();
+
+                                        preactor.PlanningBoard.PutOperationOnResource(resultadoMinimo.OrdersId, recursoIDProgramado, resultadoMinimo.changeStart);
+
+                                        tempoFim = preactor.ReadFieldDateTime("Orders", "End Time", resultadoMinimo.OrdersId);
+
+                                        sequenciamentoOperacoes.Add((resultadoMinimo.OrdersId, resultadoMinimo.OrderNo, recursoIDProgramado, dimc, tempoFim));
+
+                                        dimc = tempoFim;
+
+                                        recursosProgramados.Add(recursoIDProgramado);
+
+                                        tabelaOrdensRecurso.Add((recursoIDProgramado, resultadoMinimo.OrderNo, resultadoMinimo.OrdersId, tempoFim));
+                                        quantidadeRestanteRobo1Mesa2 = ListaOrdemSoldarRoboOrdenada.Count(r => r.OrderNo == resultadoMinimo.OrderNo && r.Programada == false);
+                                        tabelaOrdensRecurso.Remove(item); 
+
+                                        i = 0; 
+
+
+
+                                    }
+                                }
+
+
+                                else if (quantidadeRestanteRobo2Mesa1 <= 1)
+                                {
+                                    int recursoIDProgramado = preactor.PlanningBoard.GetResourceNumber("ROBO 2 MESA 1");
+
+                                    List<(int OrdersId, string OrderNo, DateTime changeStart)> listaResultadosTestes = new List<(int OrdersId, string OrderNo, DateTime changeStart)>();
+
+                                    foreach (var ordem2 in ListaOrdemSoldarRoboOrdenada)
+                                    {
+                                        if (ordem2.Programada == false)
+                                        {
+                                            var resultadoTeste = preactor.PlanningBoard.TestOperationOnResource(ordem2.Record, recursoIDProgramado, dimc);
+
+                                            if (resultadoTeste.HasValue)
+                                            {
+                                                listaResultadosTestes.Add((ordem2.Record, ordem2.OrderNo, resultadoTeste.Value.ChangeStart));
+                                            }
+                                        }
+                                    }
+
+                                    if (listaResultadosTestes.Count > 0)
+                                    {
+                                        var resultadoMinimo = listaResultadosTestes.OrderBy(r => r.changeStart).First();
+
+                                        preactor.PlanningBoard.PutOperationOnResource(resultadoMinimo.OrdersId, recursoIDProgramado, resultadoMinimo.changeStart);
+
+                                        tempoFim = preactor.ReadFieldDateTime("Orders", "End Time", resultadoMinimo.OrdersId);
+
+                                        sequenciamentoOperacoes.Add((resultadoMinimo.OrdersId, resultadoMinimo.OrderNo, recursoIDProgramado, dimc, tempoFim));
+
+                                        dimc = tempoFim;
+
+                                        recursosProgramados.Add(recursoIDProgramado);
+
+                                        tabelaOrdensRecurso.Add((recursoIDProgramado, resultadoMinimo.OrderNo, resultadoMinimo.OrdersId, tempoFim)); 
+                                        quantidadeRestanteRobo2Mesa1 = ListaOrdemSoldarRoboOrdenada.Count(r => r.OrderNo == resultadoMinimo.OrderNo && r.Programada == false);
+                                        tabelaOrdensRecurso.Remove(item);
+
+                                        i = 0; 
+
+                                    }
+                                }
+
+
+                                else if (quantidadeRestanteRobo2Mesa2 <= 1)
+                                {
+                                    int recursoIDProgramado = preactor.PlanningBoard.GetResourceNumber("ROBO 2 MESA 2");
+
+                                    List<(int OrdersId, string OrderNo, DateTime changeStart)> listaResultadosTestes = new List<(int OrdersId, string OrderNo, DateTime changeStart)>();
+
+                                    foreach (var ordem2 in ListaOrdemSoldarRoboOrdenada)
+                                    {
+                                        if (ordem2.Programada == false)
+                                        {
+                                            var resultadoTeste = preactor.PlanningBoard.TestOperationOnResource(ordem2.Record, recursoIDProgramado, dimc);
+
+                                            if (resultadoTeste.HasValue)
+                                            {
+                                                listaResultadosTestes.Add((ordem2.Record, ordem2.OrderNo, resultadoTeste.Value.ChangeStart));
+                                            }
+                                        }
+                                    }
+
+                                    if (listaResultadosTestes.Count > 0)
+                                    {
+                                        var resultadoMinimo = listaResultadosTestes.OrderBy(r => r.changeStart).First();
+
+                                        preactor.PlanningBoard.PutOperationOnResource(resultadoMinimo.OrdersId, recursoIDProgramado, resultadoMinimo.changeStart);
+
+                                        tempoFim = preactor.ReadFieldDateTime("Orders", "End Time", resultadoMinimo.OrdersId);
+
+                                        sequenciamentoOperacoes.Add((resultadoMinimo.OrdersId, resultadoMinimo.OrderNo, recursoIDProgramado, dimc, tempoFim));
+
+                                        dimc = tempoFim;
+
+                                        recursosProgramados.Add(recursoIDProgramado);
+
+                                        tabelaOrdensRecurso.Add((recursoIDProgramado, resultadoMinimo.OrderNo, resultadoMinimo.OrdersId, tempoFim)); 
+                                        quantidadeRestanteRobo2Mesa2 = ListaOrdemSoldarRoboOrdenada.Count(r => r.OrderNo == resultadoMinimo.OrderNo && r.Programada == false);
+                                        tabelaOrdensRecurso.Remove(item);
+
+                                        i = 0; 
+
+                                    }
+                                }
+
+
+                                else if (quantidadeRestanteRobo3Mesa1 <= 1)
+                                {
+                                    int recursoIDProgramado = preactor.PlanningBoard.GetResourceNumber("ROBO 3 MESA 1");
+
+                                    List<(int OrdersId, string OrderNo, DateTime changeStart)> listaResultadosTestes = new List<(int OrdersId, string OrderNo, DateTime changeStart)>();
+
+                                    foreach (var ordem2 in ListaOrdemSoldarRoboOrdenada)
+                                    {
+                                        if (ordem2.Programada == false) 
+                                        {
+                                            var resultadoTeste = preactor.PlanningBoard.TestOperationOnResource(ordem2.Record, recursoIDProgramado, dimc);
+
+                                            if (resultadoTeste.HasValue)
+                                            {
+                                                listaResultadosTestes.Add((ordem2.Record, ordem2.OrderNo, resultadoTeste.Value.ChangeStart));
+                                            }
+                                        }
+                                    }
+
+                                    if (listaResultadosTestes.Count > 0)
+                                    {
+                                        var resultadoMinimo = listaResultadosTestes.OrderBy(r => r.changeStart).First();
+
+                                        preactor.PlanningBoard.PutOperationOnResource(resultadoMinimo.OrdersId, recursoIDProgramado, resultadoMinimo.changeStart);
+
+                                        tempoFim = preactor.ReadFieldDateTime("Orders", "End Time", resultadoMinimo.OrdersId);
+
+                                        sequenciamentoOperacoes.Add((resultadoMinimo.OrdersId, resultadoMinimo.OrderNo, recursoIDProgramado, dimc, tempoFim));
+
+                                        dimc = tempoFim;
+
+                                        recursosProgramados.Add(recursoIDProgramado);
+
+                                        tabelaOrdensRecurso.Add((recursoIDProgramado, resultadoMinimo.OrderNo, resultadoMinimo.OrdersId, tempoFim)); 
+                                        quantidadeRestanteRobo3Mesa1 = ListaOrdemSoldarRoboOrdenada.Count(r => r.OrderNo == resultadoMinimo.OrderNo && r.Programada == false);
+                                        tabelaOrdensRecurso.Remove(item);
+
+                                        i = 0;
+
+                                    }
+                                }
+
+
+                                else if (quantidadeRestanteRobo3Mesa2 <= 1)
+                                {
+                                    int recursoIDProgramado = preactor.PlanningBoard.GetResourceNumber("ROBO 3 MESA 2");
+
+                                    List<(int OrdersId, string OrderNo, DateTime changeStart)> listaResultadosTestes = new List<(int OrdersId, string OrderNo, DateTime changeStart)>();
+
+                                    foreach (var ordem2 in ListaOrdemSoldarRoboOrdenada)
+                                    {
+                                        if (ordem2.Programada == false) 
+                                        {
+                                            var resultadoTeste = preactor.PlanningBoard.TestOperationOnResource(ordem2.Record, recursoIDProgramado, dimc);
+
+                                            if (resultadoTeste.HasValue)
+                                            {
+                                                listaResultadosTestes.Add((ordem2.Record, ordem2.OrderNo, resultadoTeste.Value.ChangeStart));
+                                            }
+                                        }
+                                    }
+
+                                    if (listaResultadosTestes.Count > 0)
+                                    {
+                                        var resultadoMinimo = listaResultadosTestes.OrderBy(r => r.changeStart).First();
+
+                                        preactor.PlanningBoard.PutOperationOnResource(resultadoMinimo.OrdersId, recursoIDProgramado, resultadoMinimo.changeStart);
+
+                                        tempoFim = preactor.ReadFieldDateTime("Orders", "End Time", resultadoMinimo.OrdersId);
+
+                                        sequenciamentoOperacoes.Add((resultadoMinimo.OrdersId, resultadoMinimo.OrderNo, recursoIDProgramado, dimc, tempoFim));
+
+                                        dimc = tempoFim;
+
+                                        recursosProgramados.Add(recursoIDProgramado);
+
+                                        tabelaOrdensRecurso.Add((recursoIDProgramado, resultadoMinimo.OrderNo, resultadoMinimo.OrdersId, tempoFim));
+                                        quantidadeRestanteRobo3Mesa2 = ListaOrdemSoldarRoboOrdenada.Count(r => r.OrderNo == resultadoMinimo.OrderNo && r.Programada == false);
+                                        tabelaOrdensRecurso.Remove(item); 
+
+                                        i = 0;
+
+                                    }
+                                }
+
+
+                                else if (quantidadeRestanteRobo4Mesa1 <= 1)
+                                {
+                                    int recursoIDProgramado = preactor.PlanningBoard.GetResourceNumber("ROBO 4 MESA 1");
+
+                                    List<(int OrdersId, string OrderNo, DateTime changeStart)> listaResultadosTestes = new List<(int OrdersId, string OrderNo, DateTime changeStart)>();
+
+                                    foreach (var ordem2 in ListaOrdemSoldarRoboOrdenada)
+                                    {
+                                        if (ordem2.Programada == false) 
+                                        {
+                                            var resultadoTeste = preactor.PlanningBoard.TestOperationOnResource(ordem2.Record, recursoIDProgramado, dimc);
+
+                                            if (resultadoTeste.HasValue)
+                                            {
+                                                listaResultadosTestes.Add((ordem2.Record, ordem2.OrderNo, resultadoTeste.Value.ChangeStart));
+                                            }
+                                        }
+                                    }
+
+                                    if (listaResultadosTestes.Count > 0)
+                                    {
+                                        var resultadoMinimo = listaResultadosTestes.OrderBy(r => r.changeStart).First();
+
+                                        preactor.PlanningBoard.PutOperationOnResource(resultadoMinimo.OrdersId, recursoIDProgramado, resultadoMinimo.changeStart);
+
+                                        tempoFim = preactor.ReadFieldDateTime("Orders", "End Time", resultadoMinimo.OrdersId);
+
+                                        sequenciamentoOperacoes.Add((resultadoMinimo.OrdersId, resultadoMinimo.OrderNo, recursoIDProgramado, dimc, tempoFim));
+
+                                        dimc = tempoFim;
+
+                                        recursosProgramados.Add(recursoIDProgramado);
+
+                                        tabelaOrdensRecurso.Add((recursoIDProgramado, resultadoMinimo.OrderNo, resultadoMinimo.OrdersId, tempoFim)); // Substitua 'primeiraOrdem.Id' pelo campo correto que identifica a ordem
+                                        quantidadeRestanteRobo4Mesa1 = ListaOrdemSoldarRoboOrdenada.Count(r => r.OrderNo == resultadoMinimo.OrderNo && r.Programada == false);
+                                        tabelaOrdensRecurso.Remove(item); // Remove o item da tabela de ordens e recursos programados
+
+                                        i = 0; // Reinicia o loop para verificar novamente as ordens 
+
+
+
+                                    }
+                                }
+
+
+                                else if (quantidadeRestanteRobo4Mesa2 <= 1)
+                                {
+                                    int recursoIDProgramado = preactor.PlanningBoard.GetResourceNumber("ROBO 4 MESA 2");
+
+                                    List<(int OrdersId, string OrderNo, DateTime changeStart)> listaResultadosTestes = new List<(int OrdersId, string OrderNo, DateTime changeStart)>();
+
+                                    foreach (var ordem2 in ListaOrdemSoldarRoboOrdenada)
+                                    {
+                                        if (ordem2.Programada == false)
+                                        {
+                                            var resultadoTeste = preactor.PlanningBoard.TestOperationOnResource(ordem2.Record, recursoIDProgramado, dimc);
+
+                                            if (resultadoTeste.HasValue)
+                                            {
+                                                listaResultadosTestes.Add((ordem2.Record, ordem2.OrderNo, resultadoTeste.Value.ChangeStart));
+                                            }
+                                        }
+                                    }
+
+                                    if (listaResultadosTestes.Count > 0)
+                                    {
+                                        var resultadoMinimo = listaResultadosTestes.OrderBy(r => r.changeStart).First();
+
+                                        preactor.PlanningBoard.PutOperationOnResource(resultadoMinimo.OrdersId, recursoIDProgramado, resultadoMinimo.changeStart);
+
+                                        tempoFim = preactor.ReadFieldDateTime("Orders", "End Time", resultadoMinimo.OrdersId);
+
+                                        sequenciamentoOperacoes.Add((resultadoMinimo.OrdersId, resultadoMinimo.OrderNo, recursoIDProgramado, dimc, tempoFim));
+
+                                        dimc = tempoFim;
+
+                                        recursosProgramados.Add(recursoIDProgramado);
+
+                                        tabelaOrdensRecurso.Add((recursoIDProgramado, resultadoMinimo.OrderNo, resultadoMinimo.OrdersId, tempoFim));
+                                        quantidadeRestanteRobo4Mesa2 = ListaOrdemSoldarRoboOrdenada.Count(r => r.OrderNo == resultadoMinimo.OrderNo && r.Programada == false);
+                                        tabelaOrdensRecurso.Remove(item);
+
+                                        i = 0;
+                                    }
+                                }
                             }
                         }
                     }
@@ -506,10 +719,8 @@ namespace NativeRules
             return 0;
         }
 
-        // Busca os dados dos recursos (ListaRecursos.Add(Rec);)
         private static void GetResources(IPreactor preactor, IList<Resources> ListaRecursos)
         {
-            // Coleta de dados das operações para cada uma dos OrdersId
             for (int resourceRecord = 1; resourceRecord <= preactor.RecordCount("Resources"); resourceRecord++)
             {
                 Resources Rec = new Resources();
@@ -523,10 +734,8 @@ namespace NativeRules
             }
         }
 
-        // Busca os dados das ordens (ListaOrders.Add(Ord))
         private static void GetOrders(IPreactor preactor, IList<Orders> ListaOrders)
         {
-            // Coleta de dados das operações para cada uma dos OrdersId
             for (int OrdersRecord = 1; OrdersRecord <= preactor.RecordCount("Orders"); OrdersRecord++)
             {
 
@@ -541,13 +750,13 @@ namespace NativeRules
                 Ord.StartTime = preactor.ReadFieldDateTime("Orders", "Start Time", OrdersRecord);
                 Ord.EndTime = preactor.ReadFieldDateTime("Orders", "End Time", OrdersRecord);
                 Ord.DueDate = preactor.ReadFieldDateTime("Orders", "Due Date", OrdersRecord);
-                Ord.Programada = false; // Inicializa a variável de controle
-                Ord.RecursoRequerido = -1; // Inicializa a variável de controle
-                Ord.OrdenacaoPeca = preactor.ReadFieldInt("Orders", "Numerical Attribute 1", OrdersRecord); // Inicializa a variável de controle para ordenação das peças
-                Ord.ValorOrdenacao = 10000; // Inicializa a variável de controle para ordenação das ordens de produção
+                // Inicializa a variável de controle
+                Ord.Programada = false; 
+                Ord.RecursoRequerido = -1;
+                Ord.OrdenacaoPeca = preactor.ReadFieldInt("Orders", "Numerical Attribute 1", OrdersRecord);
+                Ord.ValorOrdenacao = 10000;
 
                 ListaOrders.Add(Ord);
-
             }
         }
 
