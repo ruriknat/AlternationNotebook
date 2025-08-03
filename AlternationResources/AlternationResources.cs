@@ -37,6 +37,10 @@ namespace NativeRules
             // -- // nk // 2.5 - Consolidar/Agrupar operações SOLDAR ROBO de uma mesma ordem
             // nk // 3 - Sequenciar as operações posteriores a solda robo
 
+            // ============================================================================================================
+            // Parte 0: criar lista de ordens, recursos e agrupar por recurso
+            // ============================================================================================================
+
             IList<Orders> listaOrders = new List<Orders>();
             IList<Resources> listaRecursos = new List<Resources>();
 
@@ -86,13 +90,12 @@ namespace NativeRules
                 .OrderBy(x => x.DueDate)
                 .ToList();
 
-            // --------------------------------------------- Até aqui excluir daqui
-
             // ============================================================================================================
             // Parte 0: criar lista de ordens, recursos e agrupar por recurso
             // ============================================================================================================
 
 
+            // --------------------------------------------- Até aqui excluir daqui
 
             var listaRecursoRoboSolda = listaRecursos
                 .Where(r => r.ResourceName != null &&
@@ -135,8 +138,6 @@ namespace NativeRules
                 .ThenBy(x => x.ValorOrdenacao)
                 .ThenBy(x => x.DueDate)
                 .ToList();
-
-
 
             // ============================================================================================================
             // Parte 1: Inicia o sequenciamento das operações SOLDAR ROBO
