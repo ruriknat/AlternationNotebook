@@ -181,7 +181,10 @@ namespace NativeRules
 
                         if (preactor.PlanningBoard.GetResourceName(resultadoMinimo.recursoId).IndexOf("mesa 1", StringComparison.OrdinalIgnoreCase) >= 0)
                         {
-                            robo.tempo = resultadoMinimo.changeStart;
+                            if (robo.tempo != preactor.PlanningBoard.TerminatorTime)
+                            {
+                                resultadoMinimo.changeStart = robo.tempo;
+                            }
                             preactor.PlanningBoard.PutOperationOnResource(primeiraOrdem.Record, resultadoMinimo.recursoId, resultadoMinimo.changeStart);
                             var tempoFim = preactor.ReadFieldDateTime("Orders", "End Time", primeiraOrdem.Record);
                             roboEstados[resultadoMinimo.Attribute4] = (true, robo.mesa2, primeiraOrdem.OrderNo, robo.ordmeMesa2, tempoFim);
@@ -192,12 +195,13 @@ namespace NativeRules
                             {
                                 ordemOriginal.Programada = primeiraOrdem.Programada;
                             }
-                            recursosProgramados.Add(resultadoMinimo.recursoId);
-                            tabelaOrdensRecurso.Add((resultadoMinimo.recursoId, primeiraOrdem.OrderNo, primeiraOrdem.Record, resultadoMinimo.changeStart));
                         }
                         else if (preactor.PlanningBoard.GetResourceName(resultadoMinimo.recursoId).IndexOf("mesa 2", StringComparison.OrdinalIgnoreCase) >= 0)
                         {
-                            resultadoMinimo.changeStart = robo.tempo;
+                            if (robo.tempo != preactor.PlanningBoard.TerminatorTime)
+                            { 
+                                resultadoMinimo.changeStart = robo.tempo; 
+                            }
                             preactor.PlanningBoard.PutOperationOnResource(primeiraOrdem.Record, resultadoMinimo.recursoId, resultadoMinimo.changeStart);
                             var tempoFim = preactor.ReadFieldDateTime("Orders", "End Time", primeiraOrdem.Record);
                             roboEstados[resultadoMinimo.Attribute4] = (robo.mesa1, true, robo.ordmeMesa1, primeiraOrdem.OrderNo, tempoFim);
@@ -208,8 +212,6 @@ namespace NativeRules
                             {
                                 ordemOriginal.Programada = primeiraOrdem.Programada;
                             }
-                            recursosProgramados.Add(resultadoMinimo.recursoId);
-                            tabelaOrdensRecurso.Add((resultadoMinimo.recursoId, primeiraOrdem.OrderNo, primeiraOrdem.Record, resultadoMinimo.changeStart));
                         }
                     }
                 }
