@@ -147,12 +147,12 @@ namespace NativeRules
             DateTime dimc = preactor.PlanningBoard.TerminatorTime;
 
             // Dicionário para armazenar o estado de cada robô
-            Dictionary<string, (bool mesa1, bool mesa2, string ordmeMesa1, string ordmeMesa2, DateTime tempo)> roboEstados = new Dictionary<string, (bool, bool, string, string, DateTime)>
+            Dictionary<string, (bool mesa1, bool mesa2, string ordmeMesa1, string ordmeMesa2, int? quantidadeOrdemMesa1, int? quantidadeOrdemMesa2, DateTime tempo)> roboEstados = new Dictionary<string, (bool, bool, string, string, int?, int?, DateTime)>
             {
-                { "ROBO 1", (false, false, "", "", preactor.PlanningBoard.TerminatorTime) },
-                { "ROBO 2", (false, false, "", "", preactor.PlanningBoard.TerminatorTime) },
-                { "ROBO 3", (false, false, "", "", preactor.PlanningBoard.TerminatorTime) },
-                { "ROBO 4", (false, false, "", "", preactor.PlanningBoard.TerminatorTime) }
+                { "ROBO 1", (false, false, "", "", null, null, preactor.PlanningBoard.TerminatorTime) },
+                { "ROBO 2", (false, false, "", "", null, null, preactor.PlanningBoard.TerminatorTime) },
+                { "ROBO 3", (false, false, "", "", null, null, preactor.PlanningBoard.TerminatorTime) },
+                { "ROBO 4", (false, false, "", "", null, null, preactor.PlanningBoard.TerminatorTime) }
             };
 
             List<int> recursosProgramados = new List<int>();
@@ -187,8 +187,9 @@ namespace NativeRules
                                 resultadoMinimo.changeStart = robo.tempo;
                             }
                             preactor.PlanningBoard.PutOperationOnResource(primeiraOrdem.Record, resultadoMinimo.recursoId, resultadoMinimo.changeStart);
+                            int quantidadeRestante = ListaOrdemSoldarRoboOrdenada.Count(r => r.OrderNo == primeiraOrdem.OrderNo && r.Programada == false) - 1;
                             var tempoFim = preactor.ReadFieldDateTime("Orders", "End Time", primeiraOrdem.Record);
-                            roboEstados[resultadoMinimo.Attribute4] = (true, robo.mesa2, primeiraOrdem.OrderNo, robo.ordmeMesa2, tempoFim);
+                            roboEstados[resultadoMinimo.Attribute4] = (true, robo.mesa2, primeiraOrdem.OrderNo, robo.ordmeMesa2, quantidadeRestante, robo.quantidadeOrdemMesa2, tempoFim);
                             primeiraOrdem.Programada = true;
 
                             var ordensParaAtualizar = ListaOrdemSoldarRoboOrdenada.Where(o => o.Record == primeiraOrdem.Record).ToList();
@@ -200,12 +201,13 @@ namespace NativeRules
                         else if (preactor.PlanningBoard.GetResourceName(resultadoMinimo.recursoId).IndexOf("mesa 2", StringComparison.OrdinalIgnoreCase) >= 0)
                         {
                             if (robo.tempo != preactor.PlanningBoard.TerminatorTime)
-                            { 
-                                resultadoMinimo.changeStart = robo.tempo; 
+                            {
+                                resultadoMinimo.changeStart = robo.tempo;
                             }
                             preactor.PlanningBoard.PutOperationOnResource(primeiraOrdem.Record, resultadoMinimo.recursoId, resultadoMinimo.changeStart);
+                            int quantidadeRestante = ListaOrdemSoldarRoboOrdenada.Count(r => r.OrderNo == primeiraOrdem.OrderNo && r.Programada == false) - 1;
                             var tempoFim = preactor.ReadFieldDateTime("Orders", "End Time", primeiraOrdem.Record);
-                            roboEstados[resultadoMinimo.Attribute4] = (robo.mesa1, true, robo.ordmeMesa1, primeiraOrdem.OrderNo, tempoFim);
+                            roboEstados[resultadoMinimo.Attribute4] = (robo.mesa1, true, robo.ordmeMesa1, primeiraOrdem.OrderNo, robo.quantidadeOrdemMesa1, quantidadeRestante, tempoFim);
                             primeiraOrdem.Programada = true;
 
                             var ordensParaAtualizar = ListaOrdemSoldarRoboOrdenada.Where(o => o.Record == primeiraOrdem.Record).ToList();
@@ -345,7 +347,7 @@ namespace NativeRules
             //                    if (quantidadeRestanteRobo1Mesa1 <= 1)
             //                    {
             //                        int recursoIDProgramado = preactor.PlanningBoard.GetResourceNumber("ROBO 1 MESA 1");
-                                        
+
             //                        List<(int OrdersId, string OrderNo, DateTime changeStart)> listaResultadosTestes = new List<(int OrdersId, string OrderNo, DateTime changeStart)>();
 
             //                        foreach (var ordem2 in ListaOrdemSoldarRoboOrdenada)
@@ -360,7 +362,7 @@ namespace NativeRules
             //                                }
             //                            }
             //                        }
-                                        
+
             //                        if (listaResultadosTestes.Count > 0)
             //                        {
             //                            var resultadoMinimo = listaResultadosTestes.OrderBy(r => r.changeStart).First();
@@ -380,7 +382,7 @@ namespace NativeRules
             //                            tabelaOrdensRecurso.Remove(item);
 
             //                            i = 0;
-                                             
+
             //                        }
             //                    }
 
@@ -725,7 +727,7 @@ namespace NativeRules
                 Ord.EndTime = preactor.ReadFieldDateTime("Orders", "End Time", OrdersRecord);
                 Ord.DueDate = preactor.ReadFieldDateTime("Orders", "Due Date", OrdersRecord);
                 // Inicializa a variável de controle
-                Ord.Programada = false; 
+                Ord.Programada = false;
                 Ord.RecursoRequerido = -1;
                 Ord.OrdenacaoPeca = preactor.ReadFieldInt("Orders", "Numerical Attribute 1", OrdersRecord);
                 Ord.ValorOrdenacao = 10000;
