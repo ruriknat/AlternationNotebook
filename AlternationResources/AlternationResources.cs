@@ -245,7 +245,7 @@ namespace NativeRules
                 }
 
                 // ============================================================================================================
-                // Parte dois, continuar o sequenciamento das operações SOLDAR ROBO com a mesma ordem já sequenciada
+                // Parte 2: continua o sequenciamento das operações SOLDAR ROBO selecioandas no passo anterior
                 // ============================================================================================================
 
                 var ordensComRecursoAlocado = roboEstados
@@ -304,7 +304,7 @@ namespace NativeRules
                 }
                 
                 // ============================================================================================================
-                // Parte três, continuar o sequenciamento das operações SOLDAR ROBO com as demais ordne ao acabar uma ordem
+                // Parte 3: ao finalizar uma ordem, informa a necessidade de escolher outra ordem, retornando ao passo 1
                 // ============================================================================================================
 
                 foreach (var estado in roboEstados
