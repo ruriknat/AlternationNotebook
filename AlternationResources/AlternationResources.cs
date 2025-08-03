@@ -197,6 +197,9 @@ namespace NativeRules
                             {
                                 ordemOriginal.Programada = primeiraOrdem.Programada;
                             }
+
+                            // Variável para looping
+                            recursosProgramados.Add(resultadoMinimo.recursoId);
                         }
                         else if (preactor.PlanningBoard.GetResourceName(resultadoMinimo.recursoId).IndexOf("mesa 2", StringComparison.OrdinalIgnoreCase) >= 0)
                         {
@@ -215,6 +218,9 @@ namespace NativeRules
                             {
                                 ordemOriginal.Programada = primeiraOrdem.Programada;
                             }
+
+                            // Variável para looping
+                            recursosProgramados.Add(resultadoMinimo.recursoId);
                         }
                     }
                 }
