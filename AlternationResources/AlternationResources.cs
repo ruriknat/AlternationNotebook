@@ -192,7 +192,9 @@ namespace NativeRules
                                 {
                                     resultadoMinimo.changeStart = robo.tempo;
                                 }
+
                                 
+
                                 if (robo.rentradaMesa1)
                                 {
                                     var nomeRecurso = $"{resultadoMinimo.Attribute4} MESA 2";
@@ -365,6 +367,7 @@ namespace NativeRules
                                 {
                                     roboEstados[recursoSelecinado.Attribute4] = (robo.mesa1, true, robo.ordmeMesa1, ordem.OrderNo, robo.quantidadeOrdemMesa1, quantidadeRestante, preactor.ReadFieldDateTime("Orders", "End Time", ordem.Record), robo.rentradaMesa1, robo.rentradaMesa2);
                                 }
+
                             }
                             if (quantidadeRestante == 0)
                             {
@@ -380,6 +383,7 @@ namespace NativeRules
                 // ============================================================================================================
                 // Parte 3: ao finalizar uma ordem, informa a necessidade de escolher outra ordem, retornando ao passo 1
                 // ============================================================================================================
+
 
                 foreach (var estado in roboEstados
                     .Where(e => (e.Value.quantidadeOrdemMesa1 ?? -1) == 0 || (e.Value.quantidadeOrdemMesa2 ?? -1) == 0)
@@ -421,6 +425,7 @@ namespace NativeRules
                         roboEstados[robo] = (dados.mesa1, false, dados.ordmeMesa1, "", dados.quantidadeOrdemMesa1, null, dados.tempo, dados.rentradaMesa1, true);
                         recursosProgramados.Remove(recursoRemover);
                           
+
                         var ordensRecursoInverso = roboEstados
                             .Where(kv => kv.Key == robo)
                             .Select(kv => kv.Value.ordmeMesa1)
@@ -442,6 +447,7 @@ namespace NativeRules
                     i = 0;
                 }
             i++;
+
             }
             return 0;
         }
