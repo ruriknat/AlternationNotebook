@@ -334,18 +334,21 @@ namespace NativeRules
                     .ThenBy(x => x.DueDate)
                     .ToList();
 
-                // ---------------------------------------------                                            Verificar
-                //foreach (var grupo in operacoesComRecursoAlocado)
-                //{
-                //    int contador = 1;
+                foreach (var ordem in ordensComRecursoAlocado)
+                {
+                    var operacoesOrdenadas = operacoesComRecursoAlocado.Where(o => o.OrderNo == ordem).ToList();
 
-                //    foreach (var operacao in operacoesComRecursoAlocado)
-                //    {
-                //        operacao.OrdenacaoPeca = contador;
-                //        contador++;
-                //    }
-                //}
-                // ---------------------------------------------
+                    for (int op = 0; op < operacoesOrdenadas.Count; op++)
+                    {
+                        operacoesOrdenadas[op].OrdenacaoPeca = op+1;
+                    }
+                }
+
+                operacoesComRecursoAlocado = operacoesComRecursoAlocado
+                    .OrderBy(x => x.OrdenacaoPeca)
+                    .ThenBy(x => x.ValorOrdenacao)
+                    .ThenBy(x => x.DueDate)
+                    .ToList();
 
                 foreach (var ordem in operacoesComRecursoAlocado)
                 {
