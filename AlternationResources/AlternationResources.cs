@@ -223,7 +223,7 @@ namespace NativeRules
 
                                 else if (robo.rentradaMesa2)
                                 {
-                                    var nomeRecurso = $"{robo} MESA 1";
+                                    var nomeRecurso = $"{resultadoMinimo.Attribute4} MESA 2";
                                     var recursoProgramado = preactor.PlanningBoard.GetResourceNumber(nomeRecurso);
 
                                     var ordensRecursoInverso = roboEstados
