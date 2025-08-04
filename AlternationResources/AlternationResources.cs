@@ -343,7 +343,7 @@ namespace NativeRules
                     foreach (var recursoSelecinado in listaRecursoRoboSolda)
                     {
                         var robo = roboEstados[recursoSelecinado.Attribute4];
-                        if (robo.breakRobo == true)
+                        if (robo.breakRobo)
                         {
                             break;
                         }
@@ -380,7 +380,7 @@ namespace NativeRules
                                 var roboAtualizado = roboEstados[recursoSelecinado.Attribute4];
                                 roboEstados[recursoSelecinado.Attribute4] = (roboAtualizado.mesa1, roboAtualizado.mesa2, roboAtualizado.ordmeMesa1, roboAtualizado.ordmeMesa2,
                                     roboAtualizado.quantidadeOrdemMesa1, roboAtualizado.quantidadeOrdemMesa2, roboAtualizado.tempo, roboAtualizado.rentradaMesa1,
-                                    roboAtualizado.rentradaMesa2, false);  // 'breakRobo' setado como false
+                                    roboAtualizado.rentradaMesa2, true);  // 'breakRobo' setado como false
                                 break;
                             }
 
