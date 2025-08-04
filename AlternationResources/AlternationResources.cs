@@ -218,6 +218,8 @@ namespace NativeRules
                                     foreach (var primeiraOperacao in operacoesRecursoInverso.Where(o => o.OrdenacaoPeca == 1))
                                     {
                                         preactor.PlanningBoard.PutOperationOnResource(primeiraOperacao.Record, recursoProgramado, resultadoMinimo.changeStart);
+                                        // -------------------------------------------------------------------------------------                                            verificar
+                                        preactor.PlanningBoard.LockOperation(primeiraOperacao.Record, OperationSelection.ThisOperation, true);
 
                                         int quantidadeRestanteRentrada = ListaOrdemSoldarRoboOrdenada.Count(r => r.OrderNo == primeiraOperacao.OrderNo && r.Programada == false) - 1;
                                         resultadoMinimo.changeStart = preactor.ReadFieldDateTime("Orders", "End Time", primeiraOperacao.Record);
@@ -228,6 +230,9 @@ namespace NativeRules
                                 }
 
                                 preactor.PlanningBoard.PutOperationOnResource(primeiraOrdem.Record, resultadoMinimo.recursoId, resultadoMinimo.changeStart);
+                                // -------------------------------------------------------------------------------------                                            verificar
+                                preactor.PlanningBoard.LockOperation(primeiraOrdem.Record, OperationSelection.ThisOperation, true);
+
                                 int quantidadeRestante = ListaOrdemSoldarRoboOrdenada.Count(r => r.OrderNo == primeiraOrdem.OrderNo && r.Programada == false) - 1;
                                 var tempoFim = preactor.ReadFieldDateTime("Orders", "End Time", primeiraOrdem.Record);
                                 roboEstados[resultadoMinimo.Attribute4] = (true, robo.mesa2, primeiraOrdem.OrderNo, robo.ordmeMesa2, quantidadeRestante, robo.quantidadeOrdemMesa2, tempoFim, robo.rentradaMesa1, robo.rentradaMesa2, robo.breakRobo);
@@ -272,6 +277,8 @@ namespace NativeRules
                                     foreach (var primeiraOperacao in operacoesRecursoInverso.Where(o => o.OrdenacaoPeca == 1))
                                     {
                                         preactor.PlanningBoard.PutOperationOnResource(primeiraOperacao.Record, recursoProgramado, resultadoMinimo.changeStart);
+                                        // -------------------------------------------------------------------------------------                                            verificar
+                                        preactor.PlanningBoard.LockOperation(primeiraOperacao.Record, OperationSelection.ThisOperation, true);
 
                                         int quantidadeRestanteRentrada = ListaOrdemSoldarRoboOrdenada.Count(r => r.OrderNo == primeiraOperacao.OrderNo && r.Programada == false) - 1;
                                         resultadoMinimo.changeStart = preactor.ReadFieldDateTime("Orders", "End Time", primeiraOperacao.Record);
@@ -282,6 +289,8 @@ namespace NativeRules
                                 }
 
                                 preactor.PlanningBoard.PutOperationOnResource(primeiraOrdem.Record, resultadoMinimo.recursoId, resultadoMinimo.changeStart);
+                                // -------------------------------------------------------------------------------------                                            verificar
+                                preactor.PlanningBoard.LockOperation(primeiraOrdem.Record, OperationSelection.ThisOperation, true);
                                 int quantidadeRestante = ListaOrdemSoldarRoboOrdenada.Count(r => r.OrderNo == primeiraOrdem.OrderNo && r.Programada == false) - 1;
                                 var tempoFim = preactor.ReadFieldDateTime("Orders", "End Time", primeiraOrdem.Record);
                                 roboEstados[resultadoMinimo.Attribute4] = (robo.mesa1, true, robo.ordmeMesa1, primeiraOrdem.OrderNo, robo.quantidadeOrdemMesa1, quantidadeRestante, tempoFim, robo.rentradaMesa1, robo.rentradaMesa2, robo.breakRobo);
@@ -357,6 +366,8 @@ namespace NativeRules
                             if (resultadoTeste.HasValue)
                             {
                                 preactor.PlanningBoard.PutOperationOnResource(ordem.Record, recursoSelecinado.ResourceId, resultadoTeste.Value.ChangeStart);
+                                // -------------------------------------------------------------------------------------                                            verificar
+                                preactor.PlanningBoard.LockOperation(ordem.Record, OperationSelection.ThisOperation, true);
                                 ordem.Programada = true;
                                 var ordensParaAtualizar = ListaOrdemSoldarRoboOrdenada.Where(o => o.Record == ordem.Record).ToList();
                                 foreach (var ordemOriginal in ordensParaAtualizar)
@@ -383,7 +394,6 @@ namespace NativeRules
                                     roboAtualizado.rentradaMesa2, true);  // 'breakRobo' setado como false
                                 break;
                             }
-
                         }
                     }
 
