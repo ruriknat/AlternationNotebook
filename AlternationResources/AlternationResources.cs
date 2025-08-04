@@ -334,18 +334,21 @@ namespace NativeRules
                     .ThenBy(x => x.DueDate)
                     .ToList();
 
-                // ---------------------------------------------                                            Verificar
-                //foreach (var grupo in operacoesComRecursoAlocado)
-                //{
-                //    int contador = 1;
+                foreach (var ordem in ordensComRecursoAlocado)
+                {
+                    var operacoesOrdenadas = operacoesComRecursoAlocado.Where(o => o.OrderNo == ordem).ToList();
 
-                //    foreach (var operacao in operacoesComRecursoAlocado)
-                //    {
-                //        operacao.OrdenacaoPeca = contador;
-                //        contador++;
-                //    }
-                //}
-                // ---------------------------------------------
+                    for (int op = 0; op < operacoesOrdenadas.Count; op++)
+                    {
+                        operacoesOrdenadas[op].OrdenacaoPeca = op+1;
+                    }
+                }
+
+                operacoesComRecursoAlocado = operacoesComRecursoAlocado
+                    .OrderBy(x => x.OrdenacaoPeca)
+                    .ThenBy(x => x.ValorOrdenacao)
+                    .ThenBy(x => x.DueDate)
+                    .ToList();
 
                 foreach (var ordem in operacoesComRecursoAlocado)
                 {
@@ -493,8 +496,8 @@ namespace NativeRules
 
                 Ord.Record = OrdersRecord;
                 Ord.OrderNo = preactor.ReadFieldString("Orders", "Order No.", OrdersRecord);
-                Ord.PartNo = preactor.ReadFieldString("Orders", "Part No.", OrdersRecord);
-                Ord.OpNo = preactor.ReadFieldString("Orders", "Op. No.", OrdersRecord);
+                Ord.PartNo = preactor.ReadFieldString("Orders", "Part No.", OrdersRecord);                              // não usada
+                Ord.OpNo = preactor.ReadFieldString("Orders", "Op. No.", OrdersRecord);                                 // não usada
                 Ord.OperationName = preactor.ReadFieldString("Orders", "Operation Name", OrdersRecord);
                 Ord.SetupStart = preactor.ReadFieldDateTime("Orders", "Setup Start", OrdersRecord);
                 Ord.StartTime = preactor.ReadFieldDateTime("Orders", "Start Time", OrdersRecord);
