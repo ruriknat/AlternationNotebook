@@ -75,7 +75,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AlternationResources\AlternationResources - Cópia .cs" />
     <Compile Include="AlternationResources\AlternationResources.cs" />
     <Compile Include="Class\Orders.cs" />
     <Compile Include="Class\OrdemDoRecurso.cs" />
