@@ -320,7 +320,7 @@ namespace NativeRules
                 // ============================================================================================================
                 // Parte 2: continua o sequenciamento das operações SOLDAR ROBO selecioandas no passo anterior
                 // ============================================================================================================
-             
+
                 var ordensComRecursoAlocado = roboEstados
                     .SelectMany(kv => { var estado = kv.Value; return new[] { estado.ordmeMesa1, estado.ordmeMesa2 }; })
                     .Where(orderNo => !string.IsNullOrWhiteSpace(orderNo))
@@ -387,7 +387,6 @@ namespace NativeRules
                                 {
                                     roboEstados[recursoSelecinado.Attribute4] = (robo.mesa1, true, robo.ordmeMesa1, ordem.OrderNo, robo.quantidadeOrdemMesa1, quantidadeRestante, preactor.ReadFieldDateTime("Orders", "End Time", ordem.Record), robo.rentradaMesa1, robo.rentradaMesa2, robo.breakRobo);
                                 }
-
                             }
                             if (quantidadeRestante == 0)
                             {
