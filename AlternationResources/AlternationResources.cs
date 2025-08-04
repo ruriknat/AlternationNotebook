@@ -221,36 +221,6 @@ namespace NativeRules
                                     }
                                 }
 
-                                else if (robo.rentradaMesa2)
-                                {
-                                    var nomeRecurso = $"{resultadoMinimo.Attribute4} MESA 2";
-                                    var recursoProgramado = preactor.PlanningBoard.GetResourceNumber(nomeRecurso);
-
-                                    var ordensRecursoInverso = roboEstados
-                                        .Where(kv => kv.Key == resultadoMinimo.Attribute4)
-                                        .Select(kv => kv.Value.ordmeMesa1)
-                                        .Where(orderNo => !string.IsNullOrWhiteSpace(orderNo))
-                                        .Distinct()
-                                        .ToList();
-
-                                    var operacoesRecursoInverso = ListaOrdemSoldarRoboOrdenada
-                                        .Where(ordem => !ordem.Programada && ordensRecursoInverso.Contains(ordem.OrderNo))
-                                        .ToList();
-
-                                    foreach (var primeiraOperacao in operacoesRecursoInverso.Where(o => o.OrdenacaoPeca == 1))
-                                    {
-
-                                        preactor.PlanningBoard.PutOperationOnResource(primeiraOperacao.Record, recursoProgramado, resultadoMinimo.changeStart);
-
-                                        int quantidadeRestanteRentrada = ListaOrdemSoldarRoboOrdenada.Count(r => r.OrderNo == primeiraOperacao.OrderNo && r.Programada == false) - 1;
-                                        resultadoMinimo.changeStart = preactor.ReadFieldDateTime("Orders", "End Time", primeiraOperacao.Record);
-                                        roboEstados[resultadoMinimo.Attribute4] = (robo.mesa1, robo.mesa2, robo.ordmeMesa1, robo.ordmeMesa2, quantidadeRestanteRentrada, robo.quantidadeOrdemMesa2, resultadoMinimo.changeStart, false, robo.rentradaMesa2);
-                                        primeiraOperacao.Programada = true;
-                                        primeiraOperacao.RecursoRequerido = resultadoMinimo.recursoId;
-                                    }
-                                }
-
-
                                 preactor.PlanningBoard.PutOperationOnResource(primeiraOrdem.Record, resultadoMinimo.recursoId, resultadoMinimo.changeStart);
                                 int quantidadeRestante = ListaOrdemSoldarRoboOrdenada.Count(r => r.OrderNo == primeiraOrdem.OrderNo && r.Programada == false) - 1;
                                 var tempoFim = preactor.ReadFieldDateTime("Orders", "End Time", primeiraOrdem.Record);
@@ -276,6 +246,35 @@ namespace NativeRules
                                 {
                                     resultadoMinimo.changeStart = robo.tempo;
                                 }
+
+                                if (robo.rentradaMesa2)
+                                {
+                                    var nomeRecurso = $"{resultadoMinimo.Attribute4} MESA 1";
+                                    var recursoProgramado = preactor.PlanningBoard.GetResourceNumber(nomeRecurso);
+
+                                    var ordensRecursoInverso = roboEstados
+                                        .Where(kv => kv.Key == resultadoMinimo.Attribute4)
+                                        .Select(kv => kv.Value.ordmeMesa1)
+                                        .Where(orderNo => !string.IsNullOrWhiteSpace(orderNo))
+                                        .Distinct()
+                                        .ToList();
+
+                                    var operacoesRecursoInverso = ListaOrdemSoldarRoboOrdenada
+                                        .Where(ordem => !ordem.Programada && ordensRecursoInverso.Contains(ordem.OrderNo))
+                                        .ToList();
+
+                                    foreach (var primeiraOperacao in operacoesRecursoInverso.Where(o => o.OrdenacaoPeca == 1))
+                                    {
+                                        preactor.PlanningBoard.PutOperationOnResource(primeiraOperacao.Record, recursoProgramado, resultadoMinimo.changeStart);
+
+                                        int quantidadeRestanteRentrada = ListaOrdemSoldarRoboOrdenada.Count(r => r.OrderNo == primeiraOperacao.OrderNo && r.Programada == false) - 1;
+                                        resultadoMinimo.changeStart = preactor.ReadFieldDateTime("Orders", "End Time", primeiraOperacao.Record);
+                                        roboEstados[resultadoMinimo.Attribute4] = (robo.mesa1, robo.mesa2, robo.ordmeMesa1, robo.ordmeMesa2, quantidadeRestanteRentrada, robo.quantidadeOrdemMesa2, resultadoMinimo.changeStart, false, robo.rentradaMesa2);
+                                        primeiraOperacao.Programada = true;
+                                        primeiraOperacao.RecursoRequerido = resultadoMinimo.recursoId;
+                                    }
+                                }
+
                                 preactor.PlanningBoard.PutOperationOnResource(primeiraOrdem.Record, resultadoMinimo.recursoId, resultadoMinimo.changeStart);
                                 int quantidadeRestante = ListaOrdemSoldarRoboOrdenada.Count(r => r.OrderNo == primeiraOrdem.OrderNo && r.Programada == false) - 1;
                                 var tempoFim = preactor.ReadFieldDateTime("Orders", "End Time", primeiraOrdem.Record);
