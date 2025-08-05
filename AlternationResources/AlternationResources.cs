@@ -353,6 +353,7 @@ namespace NativeRules
                     .ThenBy(x => x.DueDate)
                     .ToList();
 
+
                 foreach (var ordem in operacoesComRecursoAlocado)
                 {
                     foreach (var recursoSelecinado in listaRecursoRoboSolda)
@@ -499,8 +500,8 @@ namespace NativeRules
 
                 Ord.Record = OrdersRecord;
                 Ord.OrderNo = preactor.ReadFieldString("Orders", "Order No.", OrdersRecord);
-                Ord.PartNo = preactor.ReadFieldString("Orders", "Part No.", OrdersRecord);                              // não usada
-                Ord.OpNo = preactor.ReadFieldString("Orders", "Op. No.", OrdersRecord);                                 // não usada
+                Ord.PartNo = preactor.ReadFieldString("Orders", "Part No.", OrdersRecord);
+                Ord.OpNo = preactor.ReadFieldString("Orders", "Op. No.", OrdersRecord);
                 Ord.OperationName = preactor.ReadFieldString("Orders", "Operation Name", OrdersRecord);
                 Ord.SetupStart = preactor.ReadFieldDateTime("Orders", "Setup Start", OrdersRecord);
                 Ord.StartTime = preactor.ReadFieldDateTime("Orders", "Start Time", OrdersRecord);
