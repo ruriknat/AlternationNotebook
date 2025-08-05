@@ -23,5 +23,6 @@ namespace NativeRules
         public int ValorOrdenacao { get; set; }         // Valor para realizar a ordenação das ordens de produção
         public int tentativasSequenciamento { get; set; }          // As ordens de Solda Robo foram desmenbradas em pecas, essa variável controla a ordenação das peças de uma mesma ordem de solda robo
         public int OrdenacaoOrdemNoRecurso { get; set; }          // As ordens de Solda Robo foram desmenbradas em pecas, essa variável controla a ordenação das peças de uma mesma ordem de solda robo
+        public DateTime? MaxEndTime { get; set; }
     }
 }
