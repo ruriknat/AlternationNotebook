@@ -32,7 +32,7 @@ namespace NativeRules
             // nk // // 2 - Sequenciar operações SOLDAR ROBO
             // -- // ok // 2.1 - Selecioanr Operações SOLDAR ROBO 
             // -- // ok // 2.2 - Desprogramar as operações SOLDAR ROBO e operações subsequentes
-            // -- // nk // 2.3 - Programar operações SOLDAR ROBO de forma alternada
+            // -- // ok // 2.3 - Programar operações SOLDAR ROBO de forma alternada
             // -- // ok // 2.4 - Corrigir tempo de operação para que seja possivel realizar 1 operacao de forma alternada no recurso Robo N
             // -- // nk // 2.5 - Consolidar/Agrupar operações SOLDAR ROBO de uma mesma ordem
             // nk // 3 - Sequenciar as operações posteriores a solda robo
