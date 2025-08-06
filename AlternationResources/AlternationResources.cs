@@ -174,7 +174,6 @@ namespace NativeRules
                 while (recursosProgramados.Count < listaRecursoRoboSolda.Count)
                 {
                     var primeiraOrdem = queueOrdens.Dequeue();
-                    int recordOrdem = primeiraOrdem.Record;
 
                     if (!primeiraOrdem.Programada)
                     {
