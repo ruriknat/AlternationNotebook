@@ -339,7 +339,8 @@ namespace NativeRules
                 foreach (var ordem in ordensComRecursoAlocado)
                 {
                     var operacoesOrdenadas = operacoesComRecursoAlocado.Where(o => o.OrderNo == ordem).ToList();
-                    var maxEndTime = operacoesOrdenadas.Max(o => o.EndTime);
+
+                    var maxEndTime = ListaOrdemSoldarRoboOrdenada.Where(o => o.OrderNo == ordem).Max(o => o.EndTime);
 
                     for (int op = 0; op < operacoesOrdenadas.Count; op++)
                     {
