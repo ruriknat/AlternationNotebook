@@ -331,8 +331,8 @@ namespace NativeRules
                         }
                         else if (primeiraOrdem.tentativasSequenciamento > 10)
                         {
-                            break;
                             preactor.Redraw();
+                            break;
                         }
                         else
                         {
@@ -418,7 +418,7 @@ namespace NativeRules
                                 break;
                             }
 
-                            int debugOrdem = ordem.Record;
+                            //int debugOrdem = ordem.Record;
 
                             if (preactor.PlanningBoard.GetResourceName(ordem.RecursoRequerido).IndexOf("mesa 1", StringComparison.OrdinalIgnoreCase) >= 0)
                             {
