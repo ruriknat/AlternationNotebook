@@ -395,7 +395,7 @@ namespace NativeRules
                         {
                         
                             if(returnPasso2)
-                             {
+                            {
                                 passo2 = 0;
                             }
 
@@ -500,21 +500,28 @@ namespace NativeRules
                                     if (estadoCalendarioMesa1.Value.Efficiency > 0 && estadoCalendarioMesa2.Value.Efficiency > 0)
                                     {
 
-                                        passo2 = 0;
+                                        roboEstados[recursoSelecinado.Attribute4] = (robo.mesa1, robo.mesa2, robo.ordmeMesa1, robo.ordmeMesa2,
+                                           robo.quantidadeOrdemMesa1, robo.quantidadeOrdemMesa2, robo.tempo,
+                                           robo.rentradaMesa1, robo.rentradaMesa2, robo.breakRobo, false, false);
 
                                         returnPasso2 = true;
+
+                                        passo2 = 0;
                                     }
                                 }
                                 else if (preactor.PlanningBoard.GetResourceName(ordem.RecursoRequerido).IndexOf("mesa 2", StringComparison.OrdinalIgnoreCase) >= 0 && robo.offShiftMesa1)
                                 {
                                     var recursoMesa1 = preactor.PlanningBoard.GetResourceNumber($"{recursoSelecinado.Attribute4} MESA 1");
-                                    var maxEndTimeMesa1 = ListaOrdemSoldarRoboOrdenada.Where(o => o.RecursoRequerido == recursoMesa1).Max(o => o.EndTime);
 
                                     var estadoCalendarioMesa1 = preactor.PlanningBoard.GetCurrentCalendarState(recursoMesa1, ordem.EndTime);
                                     var estadoCalendarioMesa2 = preactor.PlanningBoard.GetCurrentCalendarState(ordem.RecursoRequerido, ordem.EndTime);
 
                                     if (estadoCalendarioMesa1.Value.Efficiency > 0 && estadoCalendarioMesa2.Value.Efficiency > 0)
                                     {
+                                        roboEstados[recursoSelecinado.Attribute4] = (robo.mesa1, robo.mesa2, robo.ordmeMesa1, robo.ordmeMesa2,
+                                           robo.quantidadeOrdemMesa1, robo.quantidadeOrdemMesa2, robo.tempo,
+                                           robo.rentradaMesa1, robo.rentradaMesa2, robo.breakRobo,false, false);
+
                                         passo2 = 0;
 
                                         returnPasso2 = true;
