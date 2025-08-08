@@ -175,11 +175,7 @@ namespace NativeRules
                 while (recursosProgramados.Count < listaRecursoRoboSolda.Count)
                 {
                     var primeiraOrdem = queueOrdens.Dequeue();
-                    if (queueOrdens.Count > 0)
-                    {
-                        continue;
-                    }
-
+                  
                     if (!primeiraOrdem.Programada)
                     {
                         List<(int recursoId, string Attribute4, DateTime changeStart)> listaResultadosTestes = new List<(int recursoId, string Attribute4, DateTime changeStart)>();
@@ -375,10 +371,11 @@ namespace NativeRules
                     .ThenBy(x => x.DueDate)
                     .ToList();
 
+                var queueOperacoes = new Queue<Orders>(operacoesComRecursoAlocado);
 
-                for (int k = 0; k < operacoesComRecursoAlocado.Count; k++)
+                for (int k = 0; k < queueOperacoes.Count; k++)
                 {
-                    var ordem = operacoesComRecursoAlocado[k];
+                    var ordem = queueOperacoes.Dequeue();
 
                     if (ordem.Programada)
                     {
@@ -393,7 +390,9 @@ namespace NativeRules
 
                         if (robo.breakRobo)
                         {
+                            queueOperacoes.Enqueue(ordem);
                             break;
+
                         }
 
                         if (preactor.PlanningBoard.GetResourceName(ordem.RecursoRequerido).IndexOf("mesa 1", StringComparison.OrdinalIgnoreCase) >= 0)
@@ -428,6 +427,7 @@ namespace NativeRules
                             if (offshiftRecurso == true)
                             {
                                 offshiftRecurso = false;
+                                queueOperacoes.Enqueue(ordem);
                                 break;
                             }
                             dimc = roboEstados[recursoSelecinado.Attribute4].tempo;
@@ -469,8 +469,14 @@ namespace NativeRules
                         {
                             offshiftRecurso = false;
                         }
-                    }
 
+
+                        if (!ordem.Programada)
+                        {
+                            queueOperacoes.Enqueue(ordem);
+                        }
+                    }
+                    
                 }
 
                 // ============================================================================================================
