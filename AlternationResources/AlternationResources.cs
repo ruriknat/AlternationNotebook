@@ -52,7 +52,7 @@ namespace NativeRules
             preactor.PlanningBoard.SequenceAll(SequenceAllDirection.Forwards, SequencePriority.DueDate);
 
             var listaOrdemSoldarRobo = listaOrders
-                .Where(s => s.OperationName == "SOLDAR ROBO")
+                .Where(s => s.OperationName == "SOLDAR ROBO" && s.Resource == -1)
                 .ToList();
 
             foreach (var registoOrdem in listaOrdemSoldarRobo)
@@ -88,7 +88,7 @@ namespace NativeRules
             GetResources(preactor, listaRecursos);
 
             var listaOrdemSoldarRobo = listaOrders
-                .Where(s => s.OperationName == "SOLDAR ROBO")
+                .Where(s => s.OperationName == "SOLDAR ROBO" && s.Resource == -1)
                 .OrderBy(x => x.DueDate)
                 .ToList();
 
@@ -241,8 +241,8 @@ namespace NativeRules
                                                 primeiraOperacao.Programada = true;
                                                 primeiraOperacao.RecursoRequerido = resultadoMinimo.recursoId;
                                             }
+                                        }
                                     }
-                                }
                                     ProgramaOperacao(preactor, primeiraOrdem.Record, resultadoMinimo.recursoId, resultadoMinimo.changeStart);
                                     preactor.PlanningBoard.LockOperation(primeiraOrdem.Record, OperationSelection.ThisOperation, true);
 
@@ -329,9 +329,16 @@ namespace NativeRules
                                 }
                             }
                         }
+                        else if (primeiraOrdem.tentativasSequenciamento > 10)
+                        {
+                            break;
+                            preactor.Redraw();
+                        }
                         else
                         {
+                            primeiraOrdem.tentativasSequenciamento++;
                             queueOrdens.Enqueue(primeiraOrdem);
+
                         }
                     }
                 }
@@ -366,6 +373,7 @@ namespace NativeRules
                         {
                             operacoesOrdenadas[op].OrdenacaoPeca = op+1;
                             operacoesOrdenadas[op].MaxEndTime = maxEndTime;
+                            operacoesOrdenadas[op].tentativasSequenciamento = 0;
                         }
                     }
 
@@ -534,10 +542,16 @@ namespace NativeRules
                                 offshiftRecurso = false;
                             }
 
-                            if (!ordem.Programada)
-                            {
-                                queueOperacoes.Enqueue(ordem);
-                            }
+                            //if (!ordem.Programada)
+                            //{
+                            //    ordem.tentativasSequenciamento++;
+                                
+                            //    if (ordem.tentativasSequenciamento > 20)
+                            //    {
+                            //        queueOperacoes.Enqueue(ordem);
+                            //    }
+
+                            //}
                         }
                     
                     }
