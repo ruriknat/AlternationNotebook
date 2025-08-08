@@ -17,6 +17,7 @@ namespace NativeRules
     {
         int UnallocateAlternationOperation(ref PreactorObj preactorComObject, ref object pespComObject);
         int SelectedResources(ref PreactorObj preactorComObject, ref object pespComObject);
+        int AgrupaOperacoes(ref PreactorObj preactorComObject, ref object pespComObject);
     }
 
     [ComVisible(true)]
@@ -614,6 +615,90 @@ namespace NativeRules
             return 0;
         }
 
+        public int AgrupaOperacoes(ref PreactorObj preactorComObject, ref object pespComObject)
+        {
+            IPreactor preactor = PreactorFactory.CreatePreactorObject(preactorComObject);
+
+            IList<Orders> listaOrders = new List<Orders>();
+            IList<Resources> listaRecursos = new List<Resources>();
+
+            GetOrders(preactor, listaOrders);
+            GetResources(preactor, listaRecursos);
+
+            var listaOrdemSoldarRobo = listaOrders
+                .Where(s => s.OperationName == "SOLDAR ROBO" && s.Resource != -1)
+                .OrderBy(x => x.SetupStart)
+                .ToList();
+
+            var listaRecursoRoboSolda = listaRecursos
+                .Where(r => r.ResourceName != null &&
+                            r.ResourceName.IndexOf("ROBO", StringComparison.OrdinalIgnoreCase) >= 0 &&
+                            r.Attribute4.IndexOf("ROBO", StringComparison.OrdinalIgnoreCase) >= 0)
+                .OrderBy(r => r.ResourceName)
+                .ToList();
+
+
+            foreach (var recurso in listaRecursoRoboSolda)
+            {
+                string primeiraOrderNO = "";
+                //bool primeiro = true;
+
+                DateTime minStart = preactor.PlanningBoard.TerminatorTime;
+                DateTime maxEndTime = preactor.PlanningBoard.TerminatorTime;
+
+                foreach (var ordem in listaOrdemSoldarRobo.Where(o => o.Resource == recurso.ResourceId))
+                {
+                    if (primeiraOrderNO != ordem.OrderNo)
+                    {
+                        primeiraOrderNO = ordem.OrderNo;
+
+                        minStart = listaOrdemSoldarRobo.Where(o => o.OrderNo == ordem.OrderNo).OrderBy(o => o.SetupStart).First().SetupStart;
+                        maxEndTime = listaOrdemSoldarRobo.Where(o => o.OrderNo == ordem.OrderNo).OrderByDescending(o => o.EndTime).First().EndTime;
+
+                        var actualCalendar = preactor.PlanningBoard.GetPreviousCalendarState(recurso.ResourceId, minStart.AddMilliseconds(5));
+                         
+                        var previousOrder = preactor.PlanningBoard.GetResourcesPreviousOperation(recurso.ResourceId, minStart);
+
+                        if (actualCalendar.Value.ChangeTime != minStart && previousOrder < 0)
+                        {
+                            minStart = actualCalendar.Value.ChangeTime;
+                        }
+                        else if (previousOrder >= 0)
+                        {
+                            var endPreviousCalendar = preactor.PlanningBoard.GetPreviousCalendarState(recurso.ResourceId, minStart);
+                            var endCurrentCalendar = preactor.PlanningBoard.GetNextCalendarState(recurso.ResourceId, endPreviousCalendar.Value.ChangeTime);
+                            var previousOrderEndTime = preactor.ReadFieldDateTime("Orders", "End Time", previousOrder);
+
+                            if (previousOrderEndTime >= endPreviousCalendar.Value.ChangeTime && previousOrderEndTime <= endCurrentCalendar.Value.ChangeTime)
+                            {
+                                minStart = previousOrderEndTime.AddMilliseconds(1);
+                            }
+                            else if (previousOrderEndTime <= endPreviousCalendar.Value.ChangeTime)
+                            {
+                                minStart = endPreviousCalendar.Value.ChangeTime.AddMilliseconds(1);
+                            }
+
+                        }
+                        
+                        preactor.WriteField("Orders", "Use Actual Times", ordem.Record, true);  // ordem.Record, "Setup Start", minStart);
+                        preactor.WriteField("Orders", "Setup Start", ordem.Record, minStart);
+                        preactor.WriteField("Orders", "Start Time", ordem.Record, minStart);
+                        preactor.WriteField("Orders", "End Time", ordem.Record, maxEndTime);
+                    }
+                    else
+                    {
+                        preactor.WriteField("Orders", "Use Actual Times", ordem.Record, true);  // ordem.Record, "Setup Start", minStart);
+                        preactor.WriteField("Orders", "Setup Start", ordem.Record, maxEndTime);
+                        preactor.WriteField("Orders", "Start Time", ordem.Record, maxEndTime);
+                        preactor.WriteField("Orders", "End Time", ordem.Record, maxEndTime);
+                    }
+
+                }
+            }
+
+            return 0;
+        }
+
         private static OperationTimes? TesteOP(IPreactor preactor, int ordem, int recurso, DateTime tempo)
         {
             return preactor.PlanningBoard.TestOperationOnResource(ordem, recurso, tempo);
@@ -652,6 +737,7 @@ namespace NativeRules
                 Ord.PartNo = preactor.ReadFieldString("Orders", "Part No.", OrdersRecord);
                 Ord.OpNo = preactor.ReadFieldString("Orders", "Op. No.", OrdersRecord);
                 Ord.OperationName = preactor.ReadFieldString("Orders", "Operation Name", OrdersRecord);
+                Ord.Resource = preactor.ReadFieldInt("Orders", "Resource", OrdersRecord);
                 Ord.SetupStart = preactor.ReadFieldDateTime("Orders", "Setup Start", OrdersRecord);
                 Ord.StartTime = preactor.ReadFieldDateTime("Orders", "Start Time", OrdersRecord);
                 Ord.EndTime = preactor.ReadFieldDateTime("Orders", "End Time", OrdersRecord);
